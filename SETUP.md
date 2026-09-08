@@ -37,26 +37,32 @@ Use that exact server URL and retain the exact exploration ID across reloads.
 Do not substitute another cluster. If there is no server URL, ask for the
 Ritual continuation prompt instead of guessing.
 
-Inspect the existing Ritual MCP connection in Cursor. Reuse it if its URL
-matches. If it differs, preserve it and add a distinctly named project-scoped
-connection in `.cursor/mcp.json` for the selected checkout. Resolve tools to
-that exact connection. For a new user-scoped setup, merge the following into
-`~/.cursor/mcp.json`, preserving all other entries and never printing secrets.
-Use Cursor's static OAuth configuration, not URL-only dynamic registration:
+The continuation prompt selects the environment for the user-scoped `ritual`
+connection in `~/.cursor/mcp.json` on every setup. Do not default to production,
+hard-code dev, or create a project-scoped connection as a workaround. The same
+plugin supports either environment; its server comes from the prompt.
 
-```json
-{
-  "mcpServers": {
-    "ritual": {
-      "url": "<Server URL from the person's message>",
-      "auth": {
-        "CLIENT_ID": "ritual-cursor",
-        "scopes": ["openid", "profile", "email", "offline_access"]
-      }
-    }
-  }
-}
+Before changing environments or migrating from URL-only DCR, log out of the
+existing `ritual` connection in Cursor Customize so its cached OAuth credentials
+are cleared. Then run the installed plugin's helper, passing the exact server
+URL from the prompt as one quoted argument:
+
+```sh
+node ~/.cursor/plugins/local/ritual/scripts/configure-mcp.mjs '<Server URL from prompt>'
 ```
+
+For a marketplace installation, use the same helper from that installation's
+actual directory. It updates only the user-scoped `ritual` entry, configures
+`auth.CLIENT_ID` as `ritual-cursor` with `openid`, `profile`, `email`, and
+`offline_access`, and removes old headers or other credentials from that entry.
+It preserves unrelated connections and saves a private backup before changing
+the file. If the entry already matches, it does not rewrite it. Never print the
+config or backup: unrelated entries may contain credentials.
+
+Check the selected workspace for a Ritual project override. Remove only an
+override created by this setup/test; surface any other conflicting override
+before proceeding. Verify that Customize identifies the active connection as
+User scope with the exact supplied URL before using its tools.
 
 `ritual-cursor` is a public OAuth client ID, not a secret. Do not add a client
 secret or reuse credentials from another connection. Ritual must provision this

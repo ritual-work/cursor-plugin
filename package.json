@@ -5,6 +5,6 @@
   "license": "MIT",
   "scripts": {
     "sync": "node scripts/sync-ritual-skill.mjs",
-    "test": "node scripts/validate.mjs"
+    "test": "node scripts/validate.mjs && node --test scripts/configure-mcp.test.mjs"
   }
 }
