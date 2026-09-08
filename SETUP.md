@@ -16,6 +16,12 @@ Before marketplace approval, use Cursor's documented local-plugin directory:
 git clone https://github.com/ritual-work/cursor-plugin.git ~/.cursor/plugins/local/ritual
 ```
 
+If the original prompt includes `Plugin revision: <40-character commit SHA>`,
+this is a pinned validation run. After cloning, fetch and check out that exact
+commit before reloading Cursor. Do not use a placeholder-only default branch.
+For an existing installation, inspect its status and preserve local changes;
+use a separate test installation or ask before switching its revision.
+
 Create the parent directory if necessary. Inspect any existing destination
 before cloning; never overwrite it or delete an existing CLI-installed Ritual
 skill. Explain any conflicting install and let the person choose which to use.
