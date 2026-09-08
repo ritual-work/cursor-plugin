@@ -1,0 +1,19 @@
+{
+  "name": "ritual",
+  "version": "0.1.0",
+  "description": "Explore what matters, create a build brief, and resume your Ritual work in Cursor.",
+  "author": {
+    "name": "Ritual"
+  },
+  "homepage": "https://ritual.work/product/developer-plugin/",
+  "repository": "https://github.com/ritual-work/cursor-plugin",
+  "license": "MIT",
+  "keywords": [
+    "ritual",
+    "planning",
+    "build-brief",
+    "discovery"
+  ],
+  "skills": "./skills/",
+  "logo": "assets/logo.svg"
+}
