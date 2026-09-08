@@ -1,6 +1,6 @@
 # Context pulse fallback scoring reference
 
-Loaded only if `mcp__ritual__score_context_pulse` is unavailable, errors, or the MCP server is older than the canonical scoring API. Server-side scoring remains authoritative for new pulses.
+Loaded only if `score_context_pulse` is unavailable, errors, or the MCP server is older than the canonical scoring API. Server-side scoring remains authoritative for new pulses.
 
 #### Step CP3 — Compute the dimensions (fallback only)
 
@@ -31,7 +31,7 @@ The server returns `dimensionsVersion` on every pulse so callers know which shap
 
 ```
 score = (accepted_recs / total_recs) × 60
-      + (picked_questions / (picked_questions + unreviewed_questions)) × 40
+ + (picked_questions / (picked_questions + unreviewed_questions)) × 40
 ```
 
 The discovery component is a picked-vs-unreviewed ratio: a question the user committed via `accept_discovery_questions[_batch]` is `picked` ("in active investigation"); every surfaced question they didn't pick is `unreviewed` (the only state that counts toward unresolved). There is no separate `deferred`/`dropped` classification — the post-pick scope-classification gate that produced those was removed; unpicked questions are simply unreviewed.
@@ -45,14 +45,14 @@ Fallbacks: `total_recs === 0` → use only the discovery component scaled to 100
 | `sources[]` array on the exploration is non-empty (≥ 3 paths) | 25 |
 | ≥ 5 paths (deeper recon) | 15 |
 | `query_knowledge_graph(sources).implementationCount > 0` (prior impls touch overlapping files) | 30 |
-| Decisions logged on overlapping files (KG `decisions[]` non-empty) | 20 |
-| Deferrals on overlapping files surfaced (KG `deferrals[]` returned) | 10 |
+| Decisions logged on overlapping files (knowledge graph `decisions[]` non-empty) | 20 |
+| Deferrals on overlapping files surfaced (knowledge graph `deferrals[]` returned) | 10 |
 
 ##### Reference Grounding — 10% (v2 — split from Repo Grounding)
 
 | Signal | Points |
 |---|---:|
-| `mcp__ritual__list_knowledge_sources` returns ≥ 1 KnowledgeSource attached | 25 per ref, cap 75 (3 refs) |
+| `list_knowledge_sources` returns ≥ 1 KnowledgeSource attached | 25 per ref, cap 75 (3 refs) |
 | At least one ref has `extractionStatus = COMPLETED` (Pass 1 snippets exist; the source is queryable) | +25 |
 
 Lower weight than Code Grounding because a single high-quality PRD gets the user to a meaningful baseline; diminishing returns past 3 since more refs add review surface area without making the feature clearer.
@@ -90,12 +90,12 @@ Testability. Can an engineer reading this know how to verify success? This dimen
 
 ```
 readiness = round(
-  0.25 × feature_clarity
-  + 0.20 × decision_resolution
-  + 0.15 × code_grounding
-  + 0.10 × reference_grounding
-  + 0.10 × (100 - assumption_load)    ← inverted
-  + 0.20 × validation_readiness
+ 0.25 × feature_clarity
+ + 0.20 × decision_resolution
+ + 0.15 × code_grounding
+ + 0.10 × reference_grounding
+ + 0.10 × (100 - assumption_load) ← inverted
+ + 0.20 × validation_readiness
 )
 
 debt = 100 - readiness
@@ -105,10 +105,10 @@ debt = 100 - readiness
 
 ```
 readiness = round(
-  0.30 × feature_clarity
-  + 0.30 × decision_resolution
-  + 0.25 × repo_grounding
-  + 0.15 × assumption_safety
+ 0.30 × feature_clarity
+ + 0.30 × decision_resolution
+ + 0.25 × repo_grounding
+ + 0.15 × assumption_safety
 )
 ```
 

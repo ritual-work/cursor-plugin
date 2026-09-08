@@ -29,8 +29,8 @@ When **not** to use:
 **Resolution order:**
 
 1. Read `.ritual/config.json` for the pinned `explorationId` (or `workspaceId` + repo key). This is the preferred binding.
-2. If no pin: call `mcp__ritual__list_explorations` to show the compact roster, then let the user pick (same picker as Step R2 in `references/resume-flow.md`).
-3. Call `mcp__ritual__get_exploration_status` on the resolved exploration to read its LIVE state — do NOT assert status from memory or prior turns.
+2. If no pin: call `list_explorations` to show the compact roster, then let the user pick (same picker as Step R2 in `references/resume-flow.md`).
+3. Call `get_exploration_status` on the resolved exploration to read its LIVE state — do NOT assert status from memory or prior turns.
 
 **Do not re-run planning or discovery.** This step reads what already exists. If unsure which exploration, call `list_explorations` first.
 
@@ -41,7 +41,7 @@ When **not** to use:
 1. **Local brief on disk.** Read `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` (the exploration was resolved in B1, so the id is known). **Legacy migration, one-time and silent:** if that file is absent but the flat `.ritual/build-brief.md` exists with real content (not the `_Build brief not available yet._` placeholder), move it into the per-exploration directory first — create the directory, ensure `.ritual/local/` is gitignored per build-flow Step 10c — then read it from there. The flat path is the legacy location from before per-exploration directories; it is not gitignored and can collide across explorations, so nothing reads or writes it beyond this migration.
 
  A real brief at the per-exploration path IS an executable brief — proceed to Step B3. This is the prelogin path: `/ritual refine` grounded the marketing-site brief on disk WITHOUT calling the core `generate_build_brief`, so there is no server build-brief row, and that is expected. Do not block on the server when a real brief is already on disk.
-2. **Server brief.** If there is no usable local brief, call `mcp__ritual__get_exploration_status`. If it shows an accepted/ready build brief, that satisfies the gate too (the normal `/ritual build` path) — proceed to Step B3.
+2. **Server brief.** If there is no usable local brief, call `get_exploration_status`. If it shows an accepted/ready build brief, that satisfies the gate too (the normal `/ritual build` path) — proceed to Step B3.
 
 `begin` does NOT require a core server build brief; a local `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` stands on its own.
 
@@ -57,9 +57,9 @@ No accepted build brief found for this exploration.
 
 `begin` executes an existing accepted brief. To get one:
 
-  · /ritual build  — run the full planning cycle (new explorations)
-  · /ritual refine — ground an imported brief and sharpen recommendations
-  · /ritual resume — pick up an in-flight planning session
+ · /ritual build — run the full planning cycle (new explorations)
+ · /ritual refine — ground an imported brief and sharpen recommendations
+ · /ritual resume — pick up an in-flight planning session
 
 ```
 
@@ -80,9 +80,9 @@ Build brief ready — executing from accepted brief.
 `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` is on disk (or synced from the server). Skim the RBs
 + anchors, then decide:
 
-  · `go` — ready to implement; move to coding
-  · `drill {N}` — drill into RB-{N} before deciding
-  · `pause` — stop here; resume with /ritual resume
+ · `go` — ready to implement; move to coding
+ · `drill {N}` — drill into RB-{N} before deciding
+ · `pause` — stop here; resume with /ritual resume
 
 ```
 
@@ -117,10 +117,10 @@ Instead, degrade gracefully — the PR is prepared LOCALLY and the user gets one
 render with the finish-it-later path:
 
 1. Write `.ritual/pr-draft.md`: line 1 = the PR title (conventional-commit style),
-   blank line, then the body (summary of what landed, RB checklist, deferrals, brief
-   reference). This is the artifact `gh pr create` consumes later.
+ blank line, then the body (summary of what landed, RB checklist, deferrals, brief
+ reference). This is the artifact `gh pr create` consumes later.
 2. Run `sync_implementation` as normal (Step B5), registering a `[major]` deferral:
-   "draft PR pending GitHub auth".
+ "draft PR pending GitHub auth".
 3. Emit the no-credentials render ONCE:
 
 > {build rail}
@@ -133,7 +133,7 @@ render with the finish-it-later path:
 > To open it once you're authenticated (`gh auth login` or set `GH_TOKEN`):
 > ```
 > git push -u origin {branch}
-> gh pr create --draft --base {base} --head {branch} --title "{title}" --body-file .ritual/pr-draft.md
+> gh pr create --draft --base {base} --head {branch} --title "{title}" --body-file.ritual/pr-draft.md
 > ```
 >
 > Reply `retry` after authenticating (I'll push, open the draft PR, and re-sync so the
@@ -146,12 +146,12 @@ re-narrate the blocked state, never fabricate a PR URL, never push anywhere but 
 
 #### Step B5 — Sync implementation
 
-When Step 11 completes (all slices implemented and PRs opened), call `mcp__ritual__sync_implementation` to register the result in the knowledge graph. This is the same terminal step as in the continuous build flow.
+When Step 11 completes (all slices implemented and PRs opened), call `sync_implementation` to register the result in the knowledge graph. This is the same terminal step as in the continuous build flow.
 
 ```
-mcp__ritual__sync_implementation({
-  exploration_id: <resolved exploration id>,
-  // remaining params per the MCP tool contract
+sync_implementation({
+ exploration_id: <resolved exploration id>,
+ // remaining params per the MCP tool contract
 })
 ```
 

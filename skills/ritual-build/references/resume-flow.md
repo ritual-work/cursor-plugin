@@ -83,7 +83,7 @@ Before showing the in-flight exploration list, glance at `.ritual/pending-sync/`
 Quick scan:
 
 ```bash
-ls .ritual/pending-sync/*.json 2>/dev/null
+ls.ritual/pending-sync/*.json 2>/dev/null
 ```
 
 If the directory doesn't exist or has no `.json` files: proceed silently to R2. Most invocations land here.
@@ -94,26 +94,26 @@ If there ARE pending syncs:
 
 2. For each, do a **quick staleness probe** — same shape as `/ritual build` Step 12.2:
 
-   ```bash
-   # In the payload's branch, are there commits not in payload.commits[]?
-   git log {branch} --pretty=format:%H 2>/dev/null
-   ```
+ ```bash
+ # In the payload's branch, are there commits not in payload.commits[]?
+ git log {branch} --pretty=format:%H 2>/dev/null
+ ```
 
 3. Surface the list before the regular exploration picker:
 
-   ```text
-   You have {N} pending sync{s} from past sessions:
+ ```text
+ You have {N} pending sync{s} from past sessions:
 
-     1. **{exploration name}**
-        Saved {Xd} ago · {commitsCount} commit{s} · branch `{branch}`
-        {stalenessBadge}   ← "✓ still current" | "⚠ {M} new commits since save"
+ 1. **{exploration name}**
+ Saved {Xd} ago · {commitsCount} commit{s} · branch `{branch}`
+ {stalenessBadge} ← "✓ still current" | "⚠ {M} new commits since save"
 
-     2. ...
+ 2....
 
-   Resolve before resuming? (Y/n)
-   ```
+ Resolve before resuming? (Y/n)
+ ```
 
-   **[USER PAUSE — required, do not auto-answer]** Wait for reply.
+ **[USER PAUSE — required, do not auto-answer]** Wait for reply.
 
 4. If user says **yes**: for each pending sync (in order), apply the same flow as `/ritual build` Step 12.2's staleness check — retry as-is / regenerate / show new commits. Once resolved, delete the corresponding `.ritual/pending-sync/<id>.json` (succeeded) or leave it for later (deferred). Then continue to R2.
 
@@ -123,7 +123,7 @@ The point: a pending sync is a stronger signal than "this exploration's state ba
 
 #### Step R2 — Surface in-flight explorations with state badges
 
-Call `mcp__ritual__list_explorations(workspace_id)`. Sort by most-recently-updated. Drop archived. Cap at 5 in the user-facing summary.
+Call `list_explorations(workspace_id)`. Sort by most-recently-updated. Drop archived. Cap at 5 in the user-facing summary.
 
 If exactly one in-flight exploration is recent and clearly the likely target, lead with it instead of forcing a picker:
 
@@ -139,34 +139,34 @@ If there are multiple plausible targets, group by state badge and show. **One pi
 > **📍 still in discovery** ({count})
 >
 > 1. **{name}** — {first 80 chars of problemStatement}
->    Last touched {N} {days/hours} ago. Next: continue sub-problem generation.
+> Last touched {N} {days/hours} ago. Next: continue sub-problem generation.
 >
 > **💬 waiting on admin to accept recommendations** ({count})
 >
 > 2. **{name}** — {…}
->    Last touched {N} days ago. Next: admin reviews + accepts in Step 9.
+> Last touched {N} days ago. Next: admin reviews + accepts in Step 9.
 > 3. **{name}** — {…}
->    Last touched {N} days ago. Next: …
+> Last touched {N} days ago. Next: …
 >
 > **✅ ready for build brief** ({count})
 >
 > 4. **{name}** — {…}
->    Last touched {N} days ago. Next: generate the build brief.
+> Last touched {N} days ago. Next: generate the build brief.
 >
 > **Which one do you want to resume? Reply with the number, the name, or `none` to exit.**
 
 **Rendering anti-pattern (hard rule — do not do this):**
 
 - ❌ Numbering the SAME exploration's continuation lines (summary, "Last touched", "Next") as separate numbered items:
-  ```text
-  1. Social shopping — activate wishlist sharing
-  1. Activate dormant wishlist sharing primitives...
-  1. Last touched ~10 min ago. Next: generate the build brief.
-  2. Join while booking — post-order account claim
-  2. Post-checkout account creation flow...
-  2. Last touched ~2 hours ago. Next: admin reviews + accepts.
-  ```
-  Three `1.` lines + three `2.` lines is wrong. **Each exploration gets ONE picker number on its title line. The summary, last-touched, and next-action lines belong to that exploration as indented continuation prose — never their own numbered or bulleted entries.**
+ ```text
+ 1. Social shopping — activate wishlist sharing
+ 1. Activate dormant wishlist sharing primitives...
+ 1. Last touched ~10 min ago. Next: generate the build brief.
+ 2. Join while booking — post-order account claim
+ 2. Post-checkout account creation flow...
+ 2. Last touched ~2 hours ago. Next: admin reviews + accepts.
+ ```
+ Three `1.` lines + three `2.` lines is wrong. **Each exploration gets ONE picker number on its title line. The summary, last-touched, and next-action lines belong to that exploration as indented continuation prose — never their own numbered or bulleted entries.**
 
 - ❌ Using `-` bullets for explorations when the picker tells the user "reply with the number." Bullets have no numbers; the user can't say "I pick `-`."
 
@@ -189,26 +189,26 @@ Silence on no-data: if a state bucket is empty, don't render it. Don't print "**
 
 #### Step R3 — Branch-existence sanity check (`done` / `in_flight` only)
 
-> **Requires shell + git.** Steps R3 and R3.5 verify KG state against local git, so they only run on agents that can execute shell + `git`/`gh` (Claude Code, Codex, Cursor agent mode, …). **If your agent can't run shell/git** (v0, Lovable, browser-only agents), skip both probes entirely, treat the KG state badge as truth, and tell the user you couldn't cross-check it against local git history.
+> **Requires shell + git.** Steps R3 and R3.5 verify knowledge graph state against local git, so they only run on agents that can execute shell + `git`/`gh` (Claude Code, Codex, Cursor agent mode, …). **If your agent can't run shell/git** (v0, Lovable, browser-only agents), skip both probes entirely, treat the knowledge graph state badge as truth, and tell the user you couldn't cross-check it against local git history.
 
 Same as `/ritual build` Step 1.5 step 5's branch-existence check. Before treating an exploration as ✓ done, verify the implementation record's branch / PR actually exists locally or remotely:
 
 ```bash
 git rev-parse --verify "origin/${implementationRecord.branch}" 2>/dev/null \
-  || gh pr view "${implementationRecord.prNumber}" --json state 2>/dev/null
+ || gh pr view "${implementationRecord.prNumber}" --json state 2>/dev/null
 ```
 
 If neither resolves, surface as a single-action proposal:
 
-> Note: per the KG this is shipped on `{branch}` (PR #{num}), but I don't see that branch in this repo or remote. The implementation record may be bootstrap/synthetic data.
+> Note: per the knowledge graph this is shipped on `{branch}` (PR #{num}), but I don't see that branch in this repo or remote. The implementation record may be bootstrap/synthetic data.
 >
 > Treat as ready-to-implement-for-real? **(y/N, or tell me what's actually shipped)**
 
 #### Step R3.5 — Implementation footprint check (`ready` / `in_flight` only)
 
-The KG can't distinguish "brief generated, no code yet" from "implementation done but not yet synced" from "implementation was started and then dropped." All three look like state `ready` (or `in_flight`) because no `ImplementationRecord` row exists yet — that's only written on `sync_implementation`.
+The knowledge graph can't distinguish "brief generated, no code yet" from "implementation done but not yet synced" from "implementation was started and then dropped." All three look like state `ready` (or `in_flight`) because no `ImplementationRecord` row exists yet — that's only written on `sync_implementation`.
 
-When the KG asserts `ready` or `in_flight`, do a **footprint check** using the `Ritual-Exploration: <id>` commit trailer (written by Step 11.2). The trailer is a stable anchor in git history that survives branch deletion (lives in reflog for ~30 days) and persists across machines via push.
+When the knowledge graph asserts `ready` or `in_flight`, do a **footprint check** using the `Ritual-Exploration: <id>` commit trailer (written by Step 11.2). The trailer is a stable anchor in git history that survives branch deletion (lives in reflog for ~30 days) and persists across machines via push.
 
 Run these probes:
 
@@ -225,23 +225,23 @@ git rev-parse --verify "origin/feat/${exploration_slug}" 2>/dev/null
 gh pr list --search "Ritual-Exploration: ${exploration_id}" --state all --json number,state,title,headRefName,mergedAt 2>/dev/null
 ```
 
-Cross-reference findings against the KG state:
+Cross-reference findings against the knowledge graph state:
 
-| KG state | Footprint found | What happened | What to surface |
+| knowledge graph state | Footprint found | What happened | What to surface |
 |---|---|---|---|
 | `ready` | None | User hasn't started coding | "Brief ready, no code yet. Pick up at Step 11 (Implement)?" |
 | `ready` | Branch + commits with trailer | Mid-implementation, unsynced | "I see {N} commits on `{branch}` attributed to this exploration. Continue coding, run the gate, or `sync_implementation` now?" |
 | `ready` | Open PR with trailer | PR open, awaiting review/merge | "PR #{N} is open ({state}, {head_ref}). Wait for merge, or sync the current state of the branch?" |
 | `ready` | Merged PR with trailer, no impl record | PR merged but `sync_implementation` was skipped | "PR #{N} merged on {date} but `sync_implementation` was never called. Want me to sync from the PR now?" *(There is no `/ritual sync <pr-url>` command — walk the user through Step 12 manually using the PR's commits + decisions.)* |
 | `ready` | **Only orphan commits in `git log --all` (no live branch / no live PR)** | **Work was dropped — branch deleted, reset, or stashed-then-discarded** | "⚠ I see {N} commits attributed to this exploration in your git history from {N} days ago, but the branch is gone and no PR was opened. Looks like the implementation was started and dropped. Want me to: **(a)** show you the orphan commits so you can recover them (`git cherry-pick`), OR **(b)** start fresh implementation from the brief?" |
-| `in_flight` | Branch + commits match KG `branch` field | Implementation in progress (normal mid-loop state) | Continue per the state badge's suggested next step (refresh brief on remaining work). |
-| `in_flight` | KG says branch X, but Probe B says different branch Y carries the commits | Branch was renamed/rebased after KG was last updated | "KG says `{x}` but I see Ritual-attributed commits on `{y}`. Update the KG branch name, or use `{y}` for the rest of this flow?" |
+| `in_flight` | Branch + commits match knowledge graph `branch` field | Implementation in progress (normal mid-loop state) | Continue per the state badge's suggested next step (refresh brief on remaining work). |
+| `in_flight` | knowledge graph says branch X, but Probe B says different branch Y carries the commits | Branch was renamed/rebased after knowledge graph was last updated | "knowledge graph says `{x}` but I see Ritual-attributed commits on `{y}`. Update the knowledge graph branch name, or use `{y}` for the rest of this flow?" |
 
 **The dropped-work case (row 5) is the load-bearing one.** Without this check, the user re-runs `/ritual build` and the agent silently regenerates the brief, never telling the user they lost a day of work that's still recoverable from the reflog.
 
 **Skip the probes when:**
 
-- **Your agent can't run shell + git** (see the R3 guard above) — skip entirely and treat the KG state as truth.
+- **Your agent can't run shell + git** (see the R3 guard above) — skip entirely and treat the knowledge graph state as truth.
 - The exploration was just created in this same session — no time to have orphan commits.
 - The user just synced (the `done` / `in_flight` state badge was set within the last few minutes).
 - The exploration is in a state where the footprint check doesn't apply (`in_progress`, `awaiting_admin`, `implemented_ahead`).
@@ -256,9 +256,9 @@ End the flow with the same "next step" prompt `/ritual build` would have at that
 
 Read-tier subset of `/ritual build`'s tools:
 
-1. `mcp__ritual__list_workspaces` (R1, fallback only)
-2. `mcp__ritual__list_explorations` (R2 — the core read)
-3. `mcp__ritual__get_exploration` (R3, to fetch the `implementationRecord` for the branch check)
+1. `list_workspaces` (R1, fallback only)
+2. `list_explorations` (R2 — the core read)
+3. `get_exploration` (R3, to fetch the `implementationRecord` for the branch check)
 4. Whatever `/ritual build` would use from the jump-in step onward (R4)
 
 No new MCP tools required. `/ritual resume` is a thin orchestration over what already exists.

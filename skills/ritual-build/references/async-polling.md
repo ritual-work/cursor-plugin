@@ -25,18 +25,18 @@ refuse it tomorrow. So this contract does not name a wait mechanism or a duratio
 **Wrong** — the interval creeps up, and each refusal invites a worse substitute:
 
 ```
-Turn 1:  wait, then status  → still running
-Turn 2:  wait LONGER        → still running        ← escalating
-Turn 3:  wait LONGER STILL  → refused by the host
-Turn 4:  spin on a sentinel file that never appears ← now it cannot exit at all
+Turn 1: wait, then status → still running
+Turn 2: wait LONGER → still running ← escalating
+Turn 3: wait LONGER STILL → refused by the host
+Turn 4: spin on a sentinel file that never appears ← now it cannot exit at all
 ```
 
 **Right** — constant cadence; the loop ends when status says so:
 
 ```
-Turn 1:  status  → still running
-Turn 2:  status  → still running
-Turn N:  status  → terminal state → exit loop
+Turn 1: status → still running
+Turn 2: status → still running
+Turn N: status → terminal state → exit loop
 ```
 
 User-facing: while a step runs you may render `Still generating…` verbatim. Everything else the
@@ -65,7 +65,7 @@ they are not interchangeable. Poll the tool named here, never a proxy for it.
 | Requirement set | `get_requirement_set_status(exploration_id)` | ~5s | `READY` · `FAILED` |
 | Build brief | `get_build_brief_status(exploration_id, icp)` | ~5s | `READY` · `FAILED` |
 
-The cadences match the Spark UI's, so both surfaces observe the same job at the same
+The cadences match the Ritual web app's, so both surfaces observe the same job at the same
 rate. They describe how often to ASK — not how to wait, which is your host's business
 (§ Pacing above).
 

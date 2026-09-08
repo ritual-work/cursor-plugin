@@ -15,7 +15,7 @@ mkdir -p ~/.cursor/plugins/local
 git clone https://github.com/ritual-work/cursor-plugin.git ~/.cursor/plugins/local/ritual
 ```
 
-Run **Developer: Reload Window**, then check Customize for the `ritual` skill.
+Run **Developer: Reload Window**, then check Customize for the six Ritual workflow skills.
 Local plugin imports must be allowed by your team's policy. Existing marketplace
 installs take precedence over local copies with the same name.
 
@@ -23,14 +23,12 @@ Follow [SETUP.md](SETUP.md) to connect the server supplied by the Ritual website
 and sign into the same account, then run:
 
 ```text
-/ritual resume <exploration ID>
+/ritual-resume <exploration ID>
 ```
 
 The slash menu exposes `/ritual-build`, `/ritual-resume`, `/ritual-lite`,
-`/ritual-status`, `/ritual-lineage`, and `/ritual-context-pulse`. These thin
-entry points load the same shared workflow; `/ritual build <task>` and
-`/ritual resume <ID>` remain supported. `ritual init` is a CLI setup command,
-not a bundled workflow skill. The plugin intentionally does not hardcode
+`/ritual-status`, `/ritual-lineage`, and `/ritual-context-pulse`. The build skill contains the shared dispatcher; the other five skills route
+into it. Plugin installation and authentication use SETUP.md, without the CLI. The plugin intentionally does not hardcode
 an MCP server: website handoffs can target different Ritual clusters. Setup
 uses the server in the continuation prompt, preserving other MCP connections.
 
@@ -50,8 +48,10 @@ npm run sync -- ../ritual-enterprise
 npm test
 ```
 
-Sync rebuilds the upstream Cursor bundle from dev/main, copies only runtime
-skill files, and records its source commit and stamp. Review the generated diff,
+Sync runs `apps/mcp/scripts/build-agent-skills.mjs` against dev/main and copies
+its finished Cursor artifact from `dist/agent-skills/skills/cursor`. The
+canonical source is `apps/mcp/skills/ritual`. All adapters and command generation
+live upstream; this repo records the source commit and stamp. Review the generated diff,
 bump the plugin version for content updates, and publish through normal review.
 CI validates the checked-in package without access to the private upstream.
 

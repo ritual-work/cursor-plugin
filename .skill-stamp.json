@@ -1,7 +1,7 @@
 {
   "stamp": "742c5fa251cd",
-  "cli_version": "0.36.128",
   "channel": "cursor-plugin",
-  "upstreamBranch": "dev",
-  "upstreamSha": "7ea44fea3f04bc71df2f85ef5723e91109d1c753"
+  "via": "apps/mcp/scripts/build-agent-skills.mjs cursor adapter",
+  "upstreamBranch": "codex/cursor-plugin-channel",
+  "upstreamSha": "532b9be3d749f63a28cb07225400a8c22a2e4ba3"
 }

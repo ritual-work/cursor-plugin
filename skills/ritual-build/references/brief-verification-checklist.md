@@ -4,7 +4,7 @@ Reference for `/ritual build` Step 10b.5 (the auto-fire verify-brief pass that r
 
 The brief generator runs server-side and **does not have repo access**. It writes assertions about cited files / functions / classes based on the agent's earlier recon summary — which is a text summary, not the actual code. When the brief says *"`is_allowed_to_see` is insufficient — needs token-based access"* but the code actually ships email-allowlist semantics, the contradiction is invisible to the brief generator and to the user reading the brief.
 
-Step 10b.5 closes this gap: **the agent (with repo access) reads the bodies of the specific symbols the brief cites and produces a structured list of findings before the user sees the brief.** Findings are written to a **separate** file (`BUILD-BRIEF-VERIFICATION.md`) and synced to Ritual's KG via `sync_brief_review` — they are **never** written back into `BUILD-BRIEF.md`. The brief stays the read-only historical artifact Ritual generated; the corrections reach the implementation through plan mode's KG `priorContext`, not through a brief rewrite. (There is **no** `refine_build_brief` tool — do not invent one; `sync_brief_review` is the write path.)
+Step 10b.5 closes this gap: **the agent (with repo access) reads the bodies of the specific symbols the brief cites and produces a structured list of findings before the user sees the brief.** Findings are written to a **separate** file (`BUILD-BRIEF-VERIFICATION.md`) and synced to Ritual's knowledge graph via `sync_brief_review` — they are **never** written back into `BUILD-BRIEF.md`. The brief stays the read-only historical artifact Ritual generated; the corrections reach the implementation through plan mode's knowledge graph `priorContext`, not through a brief rewrite. (There is **no** `refine_build_brief` tool — do not invent one; `sync_brief_review` is the write path.)
 
 This is the **non-UI sibling of `references/ui-ux-checklist.md`** (Step 10.5 UX review). Same methodology shape (read brief → identify citations → find in repo → compare → fill schema → surface findings), different targets (functions / data shapes / model fields instead of UI components).
 
@@ -29,7 +29,7 @@ Open `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`. The sections 
 - **Codebase Anchors** — explicit file/function citations the brief expects you to extend or replace.
 - **RB-N rationale** — review-blocking claims often cite specific primitives ("the existing `X` is insufficient because Y").
 - **Suggested Implementation** — sequencing claims about what's "already present" vs "needs to be added."
-- **Previously Deferred** — references to prior decisions on overlapping files (sourced from KG).
+- **Previously Deferred** — references to prior decisions on overlapping files (sourced from knowledge graph).
 
 Output of this step: a flat list of every specific code citation the brief makes. **Symbol + file + assertion**. If a section says *"the recommendations may deviate if the codebase has a stronger existing pattern,"* that's exactly the kind of hedge this step exists to resolve — treat it as a high-priority verification target.
 
@@ -85,16 +85,16 @@ The Step 10d gate is `go` / `drill {N}` / `pause` (plus `ux-review`) — there i
 ```text
 ⚠ Verification found {N} contradiction(s) between the brief and the actual code:
 
-  · "{cited_symbol}" — brief says "{brief_assertion}". Code reality:
-    "{code_reality}" (see {cited_file}:{cited_lines}).
-  · ...
+ · "{cited_symbol}" — brief says "{brief_assertion}". Code reality:
+ "{code_reality}" (see {cited_file}:{cited_lines}).
+ ·...
 
 These are synced to Ritual; plan mode reads them when you `go`.
-Reply `go` to implement (corrections flow in via KG), `drill {N}` to
+Reply `go` to implement (corrections flow in via knowledge graph), `drill {N}` to
 inspect, or `pause` to stop.
 ```
 
-The findings do **not** rewrite the brief. They were already persisted via `sync_brief_review` (a durable `BriefReview` row) at step 5; when the user replies `go`, **plan mode reads the brief + that review via KG `priorContext`** and the implementation incorporates the corrections — without the brief text changing. If the user has context the agent doesn't ("yes the brief is wrong but ship as-is"), `go` proceeds the same way; the corrections are recorded regardless. The only path to *new brief content* is `generate_build_brief` with `force: true` (full regen from changed source data) — used when the underlying recs/requirements actually changed, never to patch a verification finding.
+The findings do **not** rewrite the brief. They were already persisted via `sync_brief_review` (a durable `BriefReview` row) at step 5; when the user replies `go`, **plan mode reads the brief + that review via knowledge graph `priorContext`** and the implementation incorporates the corrections — without the brief text changing. If the user has context the agent doesn't ("yes the brief is wrong but ship as-is"), `go` proceeds the same way; the corrections are recorded regardless. The only path to *new brief content* is `generate_build_brief` with `force: true` (full regen from changed source data) — used when the underlying recs/requirements actually changed, never to patch a verification finding.
 
 ---
 
@@ -106,7 +106,7 @@ Render exactly the sections below. Every section MUST exist (use `(none)` / `(no
 <!--
 Generated by Ritual — brief verification pass
 Exploration: https://app.ritualapp.cloud/e/{exploration_id}
-Source brief: .ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md
+Source brief:.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md
 Do not remove this header.
 -->
 
@@ -132,9 +132,9 @@ checked out, state that clearly.}
 - **Code reality:** "{code_reality}"
 - **Evidence (from the file):**
 
-  ```{language}
-  {actual code snippet, ~10 lines}
-  ```
+ ```{language}
+ {actual code snippet, ~10 lines}
+ ```
 
 - **Recommendation:** {what should change in the brief — concrete next step}
 
@@ -149,9 +149,9 @@ checked out, state that clearly.}
 - **Why they cannot both hold:** "{the specific incompatibility}"
 - **Evidence (from the file):**
 
-  ```{language}
-  {the lines that show it}
-  ```
+ ```{language}
+ {the lines that show it}
+ ```
 
 ## ❔ Unverifiable ({U})
 
@@ -174,7 +174,7 @@ checked out, state that clearly.}
 (compact list; one bullet per verified citation; no body required)
 
 - `{cited_symbol}` — {cited_file}:{lines.start}-{lines.end} — brief assertion matches code.
-- ...
+-...
 ```
 
 ---
@@ -183,8 +183,8 @@ checked out, state that clearly.}
 
 - **Verify everything in the brief.** Only the symbol-citation slice. Pose-level claims, framing, and general direction are out of scope.
 - **Read the full file.** Read enough surrounding context to verify the symbol (~10 lines); not the whole file. Capped at ~15 citations total to keep this fast.
-- **Edit the brief directly.** Step 10b.5 only writes the **separate** `BUILD-BRIEF-VERIFICATION.md` and syncs it via `sync_brief_review`. `BUILD-BRIEF.md` is never touched — it stays the read-only historical artifact. Findings reach the implementation through plan mode's KG `priorContext` at Step 11, not through a brief rewrite. (Regenerating from changed source data is a different operation — `generate_build_brief` with `force: true` — not part of this step.)
-- **Persist per-finding rows to the KG.** The review as a whole syncs via `sync_brief_review`; per-finding inheritance (future briefs on overlapping files automatically inheriting verified facts) is not yet available.
+- **Edit the brief directly.** Step 10b.5 only writes the **separate** `BUILD-BRIEF-VERIFICATION.md` and syncs it via `sync_brief_review`. `BUILD-BRIEF.md` is never touched — it stays the read-only historical artifact. Findings reach the implementation through plan mode's knowledge graph `priorContext` at Step 11, not through a brief rewrite. (Regenerating from changed source data is a different operation — `generate_build_brief` with `force: true` — not part of this step.)
+- **Persist per-finding rows to the knowledge graph.** The review as a whole syncs via `sync_brief_review`; per-finding inheritance (future briefs on overlapping files automatically inheriting verified facts) is not yet available.
 
 ---
 

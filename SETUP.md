@@ -80,11 +80,11 @@ If the skill is not yet visible, ask the person to run Developer: Reload Window.
 Give them this copyable prompt before the reload, substituting their actual ID:
 
 ```text
-/ritual resume <exploration ID>
+/ritual-resume <exploration ID>
 ```
 
-After reload, confirm Customize exposes the `ritual` skill and the Ritual MCP
-connection is enabled. Load `skills/ritual/SKILL.md` and run its resume flow with
+After reload, confirm Customize exposes the Ritual workflow skills and the Ritual MCP
+connection is enabled. Load `skills/ritual-build/SKILL.md` and run its resume flow with
 the provided ID. Tool names in the generated skill are canonical; resolve them
 to the connected Ritual server's tools rather than assuming a host-specific
 prefix. Pick the person's project checkout before implementation.

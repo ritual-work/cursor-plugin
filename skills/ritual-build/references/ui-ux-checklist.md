@@ -161,7 +161,7 @@ Specifically address before proposing any plan:
 1. {mismatch from methodology step 4 — concrete one-liner}
 2. {gap from methodology step 4 — concrete one-liner}
 3. {new-work surface from methodology step 4 — concrete one-liner}
-   (repeat 4–6 for the next most load-bearing surfaced items)
+ (repeat 4–6 for the next most load-bearing surfaced items)
 
 Then return a plan that includes:
 - Existing patterns you found (cite file paths)
