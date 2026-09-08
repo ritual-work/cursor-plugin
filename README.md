@@ -26,8 +26,11 @@ and sign into the same account, then run:
 /ritual resume <exploration ID>
 ```
 
-Start new work with `/ritual build <task>`; the dispatcher also supports lite,
-status, lineage, and context-pulse. The plugin intentionally does not hardcode
+The slash menu exposes `/ritual-build`, `/ritual-resume`, `/ritual-lite`,
+`/ritual-status`, `/ritual-lineage`, and `/ritual-context-pulse`. These thin
+entry points load the same shared workflow; `/ritual build <task>` and
+`/ritual resume <ID>` remain supported. `ritual init` is a CLI setup command,
+not a bundled workflow skill. The plugin intentionally does not hardcode
 an MCP server: website handoffs can target different Ritual clusters. Setup
 uses the server in the continuation prompt, preserving other MCP connections.
 

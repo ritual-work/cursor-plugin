@@ -1,3 +1,4 @@
+import { generateDispatchSkills } from './generate-dispatch-skills.mjs';
 import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
@@ -24,3 +25,8 @@ writeFileSync(join(root, '.skill-stamp.json'), JSON.stringify({
   cli_version: /^cli_version: (.+)$/m.exec(skill)?.[1],
   channel: 'cursor-plugin', upstreamBranch: branch, upstreamSha: git('rev-parse', 'HEAD'),
 }, null, 2) + '\n');
+
+// Menu definitions are shared with the Claude and ChatGPT plugin adapters.
+mkdirSync(join(root, 'canonical'), { recursive: true });
+cpSync(join(upstream, 'apps/mcp/skills/ritual/commands.json'), join(root, 'canonical/commands.json'));
+generateDispatchSkills(root);

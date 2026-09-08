@@ -25,3 +25,13 @@ function walk(dir) {
 }
 walk(join(root, 'skills'));
 console.log('Cursor manifest, skill provenance, and runtime references validated.');
+
+const menu = JSON.parse(readFileSync(join(root, 'canonical/commands.json'))).commands;
+for (const sub of ['build', ...Object.keys(menu)]) {
+  const name = `ritual-${sub}`;
+  const entry = readFileSync(join(root, 'skills', name, 'SKILL.md'), 'utf8');
+  assert.ok(entry.includes(`name: ${name}\n`), `Missing menu entry ${name}`);
+  assert.ok(entry.includes('../ritual/SKILL.md'), `${name} must load the shared dispatcher`);
+  assert.ok(skill.includes('| `' + sub + '` |'), `${name} has no matching workflow`);
+}
+console.log('Cursor workflow menu entries and shared routing validated.');
