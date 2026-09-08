@@ -1,6 +1,6 @@
 # Render contract — the user-visible output allowlist (single source of truth)
 
-**This file is the canonical definition of what `/ritual build` (and `/ritual resume`)
+**This file is the canonical definition of what `/ritual-build` (and `/ritual-resume`)
 may put on the user's screen during the PLANNING phase.** It is the source other
 references POINT at — `build-flow.md` (voice rule #8) and `cli-output-contract.md`
 summarize it and link here; they do not own it. When a rule here and an example

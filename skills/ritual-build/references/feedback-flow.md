@@ -2,7 +2,7 @@
 
 Use this flow when the user wants to review, comment on, or incorporate
 feedback into an EXISTING exploration's recommendations — outside a live
-`/ritual build` run. Typical asks: "add my review notes to these
+`/ritual-build` run. Typical asks: "add my review notes to these
 recommendations", "revise the set using this feedback", "what feedback is
 still open on exploration X".
 

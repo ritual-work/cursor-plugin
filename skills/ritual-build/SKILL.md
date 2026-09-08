@@ -1,7 +1,7 @@
 ---
 name: ritual-build
 description: "Use when an engineer wants a coding agent to plan or build a feature, refactor, or implementation-heavy change that depends on context the agent can't infer on its own — strategic intent, constraints, prior decisions, and trade-offs that live in the user's head. Ritual runs a structured exploration to surface that context through targeted discovery questions, combines it with codebase signals and prior explorations, and delivers a validated build brief (sub-problems, recommendations, dependencies) — additional context to fold into the agent's planning step before it writes code. Prefer this over jumping straight to implementation when the problem is ambiguous, cross-cutting, or has non-obvious constraints. Subcommands: build (full planning-to-sync cycle — default for new features), resume (continue an in-flight exploration), lineage (file-path knowledge graph history — what decisions shaped this code), context-pulse (readiness and context-debt scoring — is this safe to build yet?)."
-stamp: 742c5fa251cd
+stamp: bf8279d6146c
 channel: cursor-plugin
 ---
 
@@ -39,7 +39,7 @@ This is telemetry — it returns at once and changes nothing. Never announce it,
 never apologise for the correction, and never let it interrupt the work: fix the
 thing, say what changed in a sentence, keep going. If it errors, ignore the error.
 
-Do not reintroduce `/ritual recon`. Use plain-language repo inspection, `/ritual resume`, or `/ritual lineage` depending on intent.
+Do not reintroduce `/ritual recon`. Use plain-language repo inspection, `/ritual-resume`, or `/ritual-lineage` depending on intent.
 
 **Ground before you claim (load-bearing).** An exploration's current state — its recommendation count/status, step, requirement/brief status — is **live truth you read, never recall**. Before stating any of it: if unsure *which* exploration, call `list_explorations` (the compact roster) to fix identity by seeing them side by side; before asserting *what's in* one, call `get_exploration_status` (the cheap status card). Memory and prior turns are authoritative only for identity (which exploration, its title); the graph is authoritative for state. Never assert a recommendation count or status from memory, a session summary, or a stale read — that's how sibling explorations get conflated and "0 recs" gets claimed on an exploration that has many.
 
@@ -116,14 +116,14 @@ Parse the first token of the argument:
 | `lite` | `references/lite-flow.md` | Same pipeline as `build`, run fast/unattended — smaller discovery surface, fewer pauses (only the job+persona front gate and a non-blocking rec review). Use for small/well-scoped dev work, or when the coding agent triages minimal discovery. |
 | `resume` | `references/resume-flow.md` | "Pick up where I left off." Lists in-flight explorations with state badges and jumps to the right step. |
 | `lineage` | `references/lineage-flow.md` | Paste a file path (or set of paths); see every prior exploration / decision / deferral that touched those files. |
-| `context-pulse` | `references/context-pulse-flow.md` | Score readiness / context debt for a feature ask or exploration. Can seed a `CONTEXT-<feature>.md` file with relevant codebase + knowledge graph context that `/ritual build` picks up automatically. Also surfaces inline during build so the user watches debt drop. |
+| `context-pulse` | `references/context-pulse-flow.md` | Score readiness / context debt for a feature ask or exploration. Can seed a `CONTEXT-<feature>.md` file with relevant codebase + knowledge graph context that `/ritual-build` picks up automatically. Also surfaces inline during build so the user watches debt drop. |
 | `status` | `references/status-flow.md` | Read-only mirror of the `ritual status` CLI command (CLI 0.7.14+) for a quick run-progress check inside the agent session. Calls `get_agentic_run` + renders the same run-first layout the CLI uses. (Most useful when your agent runs alongside the Ritual CLI; harmless elsewhere.) |
 | `begin` | `references/begin-flow.md` | Execute an accepted build brief. Resolves the existing exploration, confirms the brief, then runs the implementation phase (build-flow.md Step 11+) and syncs. |
 | `feedback` | `references/feedback-flow.md` | Review an existing exploration's recommendations, post feedback as attributed comments (`add_recommendation_comment` / `list_recommendation_comments`), and revise the set from an explicit selection (`revise_recommendation_set` → `get_recommendation_revision` → user-approved `apply_recommendation_revision`). Preview-first: generation changes nothing live. |
 
 | (anything else, OR no subcommand) | default to `build` and treat the entire argument as the problem statement | |
 
-The Ritual `/ritual` command surface is intentionally narrow: `build`, `refine`, `lite`, `resume`, `lineage`, `context-pulse`, `feedback`, plus the read-only `status` mirror and the implementation-trigger `begin`. `explore`, `run`, `brief`, `gate`, `spec`, `questions`, `gherkin`, and `recs` are NOT commands — each would map 1:1 to an MCP tool call and add no agent value over plain English. Do not invent them; call the MCP tool directly when the user asks for "the recs on exp-X" or "decisions on file Y". (There is no `/ritual recon` command — its unique value would duplicate `/ritual resume` (workspace history) + `/ritual lineage` (decisions on files), and its non-duplicate parts (map repo, trace flow, explain file) are exactly what the agent does fluently in plain English without needing a SKILL-defined menu.)
+The Ritual `/ritual` command surface is intentionally narrow: `build`, `refine`, `lite`, `resume`, `lineage`, `context-pulse`, `feedback`, plus the read-only `status` mirror and the implementation-trigger `begin`. `explore`, `run`, `brief`, `gate`, `spec`, `questions`, `gherkin`, and `recs` are NOT commands — each would map 1:1 to an MCP tool call and add no agent value over plain English. Do not invent them; call the MCP tool directly when the user asks for "the recs on exp-X" or "decisions on file Y". (There is no `/ritual recon` command — its unique value would duplicate `/ritual-resume` (workspace history) + `/ritual-lineage` (decisions on files), and its non-duplicate parts (map repo, trace flow, explain file) are exactly what the agent does fluently in plain English without needing a SKILL-defined menu.)
 
 ## Subcommand reference files
 
@@ -159,9 +159,9 @@ When the user says things like *"what's the status of exp-X?"*, *"show me the re
 | Status across many explorations | `list_explorations(workspace_id)` (returns state badges) |
 | The recommendations on an exploration | `get_recommendations(exploration_id)` |
 | Kick off / re-run the agentic pipeline | `start_agentic_run(exploration_id, …)` |
-| Did anyone implement something on these files? | `query_knowledge_graph(sources=[…])` — same plumbing as `/ritual lineage` |
+| Did anyone implement something on these files? | `query_knowledge_graph(sources=[…])` — same plumbing as `/ritual-lineage` |
 
-This is intentional. Exposing each of these as its own command (`/ritual recs`, `/ritual run`, etc.) balloons the surface area without adding agent value. The commands stay narrow (`build`, `refine`, `lite`, `resume`, `lineage`, `context-pulse`, plus the read-only `status` mirror and the implementation-trigger `begin`) and let the agent fluently call MCP tools for everything else. Note: `/ritual status` is the one deliberate exception — it exists as a thin SKILL mirror of the `ritual status` CLI command so users who want an in-chat status check don't have to switch surfaces. Do not reintroduce `/ritual recon`: its former workspace-history value is covered by `/ritual resume`; its file-decision-history value is covered by `/ritual lineage`; and repo-reading behaviors are normal coding-agent behavior in plain English.
+This is intentional. Exposing each of these as its own command (`/ritual recs`, `/ritual run`, etc.) balloons the surface area without adding agent value. The commands stay narrow (`build`, `refine`, `lite`, `resume`, `lineage`, `context-pulse`, plus the read-only `status` mirror and the implementation-trigger `begin`) and let the agent fluently call MCP tools for everything else. Note: `/ritual-status` is the one deliberate exception — it exists as a thin SKILL mirror of the `ritual status` CLI command so users who want an in-chat status check don't have to switch surfaces. Do not reintroduce `/ritual recon`: its former workspace-history value is covered by `/ritual-resume`; its file-decision-history value is covered by `/ritual-lineage`; and repo-reading behaviors are normal coding-agent behavior in plain English.
 
 ---
 

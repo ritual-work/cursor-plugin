@@ -1,26 +1,26 @@
-## /ritual resume
+## /ritual-resume
 
-**"Pick up where I left off."** Promotes `/ritual build`'s Step 1.5 ("resume vs start") to a first-class command for users who already know they want to continue something, not start fresh.
+**"Pick up where I left off."** Promotes `/ritual-build`'s Step 1.5 ("resume vs start") to a first-class command for users who already know they want to continue something, not start fresh.
 
-Output: the user lands on the right step of an existing exploration's `/ritual build` flow — no new exploration created, no fresh-start path offered.
+Output: the user lands on the right step of an existing exploration's `/ritual-build` flow — no new exploration created, no fresh-start path offered.
 
-**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual resume` MUST begin with the 5-stage build rail per `references/cli-output-contract.md` § Build rail — both during the picker (rail at `▶ Scope`) and once you teleport into the chosen exploration (rail at whatever stage that exploration is in).
+**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual-resume` MUST begin with the 5-stage build rail per `references/cli-output-contract.md` § Build rail — both during the picker (rail at `▶ Scope`) and once you teleport into the chosen exploration (rail at whatever stage that exploration is in).
 
 ### When to use
 
-- The user types `/ritual resume` with no args (the common case): they want to see their in-flight explorations and pick one.
-- The user types `/ritual resume <exploration_id_or_name>`: they already know which one; jump straight to its right step.
+- The user types `/ritual-resume` with no args (the common case): they want to see their in-flight explorations and pick one.
+- The user types `/ritual-resume <exploration_id_or_name>`: they already know which one; jump straight to its right step.
 - A user came back to the repo after time away and isn't sure what they had going.
 
 When **not** to use:
-- The user wants to start something new → that's `/ritual build`.
+- The user wants to start something new → that's `/ritual-build`.
 - The user wants to understand the workspace at a higher level (no specific exploration in mind) → just ask the agent in plain English (*"walk me through this workspace"* / *"trace the auth flow"*) — no slash-command needed.
 
 ### Workflow
 
 #### Step R1 — Pick a workspace
 
-Same as `/ritual build` Step 1. Project-pinned workspace from `.ritual/config.json` is preferred. If no pin and the user has multiple workspaces, ask which one.
+Same as `/ritual-build` Step 1. Project-pinned workspace from `.ritual/config.json` is preferred. If no pin and the user has multiple workspaces, ask which one.
 
 **Unless an exploration id was handed to you — then DERIVE the workspace and ask nothing.** An exploration already belongs to a workspace, so asking which one is asking a question you can answer yourself. Resolve it from the exploration, bind `.ritual/config.json` to it, and continue. A repo that arrives unbound leaves this step bound, which is free and permanent.
 
@@ -28,9 +28,9 @@ This is the funnel deep-link path: a developer who signed up on the marketing si
 
 If the workspace has **zero explorations**: tell the user politely and pivot.
 
-> No in-flight explorations in this workspace yet. Start a new Ritual build with `/ritual build <your problem>`.
+> No in-flight explorations in this workspace yet. Start a new Ritual build with `/ritual-build <your problem>`.
 
-End the flow here. Don't bounce them into `/ritual build` automatically — explicit user intent beats implicit handoff.
+End the flow here. Don't bounce them into `/ritual-build` automatically — explicit user intent beats implicit handoff.
 
 #### Step R1.4 — Get the brief to work from (deep-link path)
 
@@ -92,7 +92,7 @@ If there ARE pending syncs:
 
 1. Read each `.json` file. Extract `explorationId`, `branch`, `commits[].sha` count, and the file's mtime ("saved Xd ago").
 
-2. For each, do a **quick staleness probe** — same shape as `/ritual build` Step 12.2:
+2. For each, do a **quick staleness probe** — same shape as `/ritual-build` Step 12.2:
 
  ```bash
  # In the payload's branch, are there commits not in payload.commits[]?
@@ -115,9 +115,9 @@ If there ARE pending syncs:
 
  **[USER PAUSE — required, do not auto-answer]** Wait for reply.
 
-4. If user says **yes**: for each pending sync (in order), apply the same flow as `/ritual build` Step 12.2's staleness check — retry as-is / regenerate / show new commits. Once resolved, delete the corresponding `.ritual/pending-sync/<id>.json` (succeeded) or leave it for later (deferred). Then continue to R2.
+4. If user says **yes**: for each pending sync (in order), apply the same flow as `/ritual-build` Step 12.2's staleness check — retry as-is / regenerate / show new commits. Once resolved, delete the corresponding `.ritual/pending-sync/<id>.json` (succeeded) or leave it for later (deferred). Then continue to R2.
 
-5. If user says **no**: proceed to R2 silently. The pending syncs aren't going anywhere; the user can clear them later via `/ritual resume` again.
+5. If user says **no**: proceed to R2 silently. The pending syncs aren't going anywhere; the user can clear them later via `/ritual-resume` again.
 
 The point: a pending sync is a stronger signal than "this exploration's state badge says ready" because the user's own code-tracking failed mid-flight. Surfacing them first means the user resolves obviously-broken state before being asked to pick a new thing to work on.
 
@@ -174,7 +174,7 @@ If there are multiple plausible targets, group by state badge and show. **One pi
 
 **The correct shape is exactly:** state-bucket header → blank line → `{N}. **{name}** — {summary}` → indented continuation prose (2-space indent, no leading marker) → blank line before next exploration. State-bucket count in parens `({count})` is informational and is NEVER a picker number.
 
-State badge → user-facing label + suggested next step (same table as `/ritual build` Step 1.5):
+State badge → user-facing label + suggested next step (same table as `/ritual-build` Step 1.5):
 
 | Glyph | State | User-facing label | Jump to |
 |---|---|---|---|
@@ -182,7 +182,7 @@ State badge → user-facing label + suggested next step (same table as `/ritual 
 | 💬 | `awaiting_admin` | "waiting on admin to accept recommendations" | Admin review |
 | ✅ | `ready` | "ready for build brief" | Generate the build brief |
 | 🛠 | `in_flight` | "implementation in progress" | Refresh the build brief on remaining work |
-| ✓ | `done` | "shipped with follow-ups" if open deferrals exist; otherwise "shipped context" | Address follow-ups or use `/ritual lineage` on touched files. Hide fully complete shipped work by default. |
+| ✓ | `done` | "shipped with follow-ups" if open deferrals exist; otherwise "shipped context" | Address follow-ups or use `/ritual-lineage` on touched files. Hide fully complete shipped work by default. |
 | ⚠ | `implemented_ahead` | "code shipped before admin acceptance" | Surface to user, ask admin to reconcile |
 
 Silence on no-data: if a state bucket is empty, don't render it. Don't print "**🛠 implementation in progress** (0)".
@@ -191,7 +191,7 @@ Silence on no-data: if a state bucket is empty, don't render it. Don't print "**
 
 > **Requires shell + git.** Steps R3 and R3.5 verify knowledge graph state against local git, so they only run on agents that can execute shell + `git`/`gh` (Claude Code, Codex, Cursor agent mode, …). **If your agent can't run shell/git** (v0, Lovable, browser-only agents), skip both probes entirely, treat the knowledge graph state badge as truth, and tell the user you couldn't cross-check it against local git history.
 
-Same as `/ritual build` Step 1.5 step 5's branch-existence check. Before treating an exploration as ✓ done, verify the implementation record's branch / PR actually exists locally or remotely:
+Same as `/ritual-build` Step 1.5 step 5's branch-existence check. Before treating an exploration as ✓ done, verify the implementation record's branch / PR actually exists locally or remotely:
 
 ```bash
 git rev-parse --verify "origin/${implementationRecord.branch}" 2>/dev/null \
@@ -237,7 +237,7 @@ Cross-reference findings against the knowledge graph state:
 | `in_flight` | Branch + commits match knowledge graph `branch` field | Implementation in progress (normal mid-loop state) | Continue per the state badge's suggested next step (refresh brief on remaining work). |
 | `in_flight` | knowledge graph says branch X, but Probe B says different branch Y carries the commits | Branch was renamed/rebased after knowledge graph was last updated | "knowledge graph says `{x}` but I see Ritual-attributed commits on `{y}`. Update the knowledge graph branch name, or use `{y}` for the rest of this flow?" |
 
-**The dropped-work case (row 5) is the load-bearing one.** Without this check, the user re-runs `/ritual build` and the agent silently regenerates the brief, never telling the user they lost a day of work that's still recoverable from the reflog.
+**The dropped-work case (row 5) is the load-bearing one.** Without this check, the user re-runs `/ritual-build` and the agent silently regenerates the brief, never telling the user they lost a day of work that's still recoverable from the reflog.
 
 **Skip the probes when:**
 
@@ -246,29 +246,29 @@ Cross-reference findings against the knowledge graph state:
 - The user just synced (the `done` / `in_flight` state badge was set within the last few minutes).
 - The exploration is in a state where the footprint check doesn't apply (`in_progress`, `awaiting_admin`, `implemented_ahead`).
 
-#### Step R4 — Jump to the right `/ritual build` step
+#### Step R4 — Jump to the right `/ritual-build` step
 
-Once the user picks (and the sanity check passes), invoke the `/ritual build` flow internally with `exploration_id` set and skip ahead to the step the badge maps to. **Don't re-prompt for workspace, template, scope, considerations, or problem statement** — that work already exists on the exploration.
+Once the user picks (and the sanity check passes), invoke the `/ritual-build` flow internally with `exploration_id` set and skip ahead to the step the badge maps to. **Don't re-prompt for workspace, template, scope, considerations, or problem statement** — that work already exists on the exploration.
 
-End the flow with the same "next step" prompt `/ritual build` would have at that step. The user sees `/ritual resume` as a thin shortcut; behind the scenes it just teleports them into `/ritual build`'s middle.
+End the flow with the same "next step" prompt `/ritual-build` would have at that step. The user sees `/ritual-resume` as a thin shortcut; behind the scenes it just teleports them into `/ritual-build`'s middle.
 
 ### Tools used
 
-Read-tier subset of `/ritual build`'s tools:
+Read-tier subset of `/ritual-build`'s tools:
 
 1. `list_workspaces` (R1, fallback only)
 2. `list_explorations` (R2 — the core read)
 3. `get_exploration` (R3, to fetch the `implementationRecord` for the branch check)
-4. Whatever `/ritual build` would use from the jump-in step onward (R4)
+4. Whatever `/ritual-build` would use from the jump-in step onward (R4)
 
-No new MCP tools required. `/ritual resume` is a thin orchestration over what already exists.
+No new MCP tools required. `/ritual-resume` is a thin orchestration over what already exists.
 
-### Relationship to `/ritual build` Step 1.5
+### Relationship to `/ritual-build` Step 1.5
 
 They share the same logic. The difference is **user intent at invocation time**:
 
-- `/ritual build` is "I'm starting something" — Step 1.5 is a *check* ("oh wait, you might already have this") before going further.
-- `/ritual resume` is "I'm continuing something" — there's no fresh-start path; if the user really wants fresh, they exit and run `/ritual build`.
+- `/ritual-build` is "I'm starting something" — Step 1.5 is a *check* ("oh wait, you might already have this") before going further.
+- `/ritual-resume` is "I'm continuing something" — there's no fresh-start path; if the user really wants fresh, they exit and run `/ritual-build`.
 
 Result: the same MCP calls, the same state-badge table, but different framing for the user. Two clear front doors instead of one ambiguous one.
 

@@ -1,4 +1,4 @@
-## /ritual context-pulse
+## /ritual-context-pulse
 
 **"Can a reasoning system act safely on this yet?"** The user gives the agent a feature description (free-form) OR an exploration id, and the agent computes a **Context Pulse** — a score that makes "context debt" visible and asks the right question for an AI-first world: *can the interpreter (model, agent, or developer) reason from what's here, or will they have to invent consequential facts?*
 
@@ -14,7 +14,7 @@ The product category is **Context Debt** (debt drives the pitch — *AI made out
 
 Output: a readiness / debt score (0–100, dual framing — debt goes DOWN as readiness goes UP) plus a context-surface tier, a per-dimension breakdown, the top debt sources, and one recommended next action.
 
-The same scoring engine also fires **inline during `/ritual build`** after each major step, so the user watches the debt drop as they pay it down. That's the encouragement loop — see [§ Inline pulses in `/ritual build`](#inline-pulses-in-ritual-build) below.
+The same scoring engine also fires **inline during `/ritual-build`** after each major step, so the user watches the debt drop as they pay it down. That's the encouragement loop — see [§ Inline pulses in `/ritual-build`](#inline-pulses-in-ritual-build) below.
 
 ### Why this exists
 
@@ -30,14 +30,14 @@ Output principles this serves:
 
 ### When to use
 
-- **Pre-build**: *"is this feature ask ready for `/ritual build`, or do I need to frame more first?"* — score against a free-form description.
+- **Pre-build**: *"is this feature ask ready for `/ritual-build`, or do I need to frame more first?"* — score against a free-form description.
 - **Mid-flow**: *"I've answered some discovery questions, where am I now?"* — score an existing exploration in progress.
 - **Hand-off check**: *"someone left me an exploration — what's the current grounding state?"*
 - **Pre-implementation sanity check**: *"the brief is generated. Is this implementation-ready, or are there hidden gaps?"*
 
 When **not** to use:
-- The user wants to actually start work → `/ritual build`.
-- The user wants to see prior file history → `/ritual lineage`.
+- The user wants to actually start work → `/ritual-build`.
+- The user wants to see prior file history → `/ritual-lineage`.
 - The user wants a workspace tour with no specific files in mind → just ask the agent in plain English (no slash-command needed).
 
 ### Modes
@@ -46,10 +46,10 @@ The pulse operates in one of four distinct modes, each with different scoring in
 
 | Mode | Invocation | What "current codebase" is worth |
 |---|---|---|
-| **A. Naked** | `/ritual context-pulse` with no args, no session context, no in-flight exploration | Codebase is **table stakes** — having one doesn't move the score for a feature that hasn't been described. Score is near zero (just whatever workspace knowledge graph counts toward Repo Grounding). Recommended action: *"Give me a feature description, or run `/ritual build`."* |
-| **B. Cold-call feature** | `/ritual context-pulse Add billing export for workspace admins` (description, no matching exploration) | The agent maps the description to the codebase + knowledge graph, finds candidate files and prior decisions, and offers to seed `CONTEXT-<feature>.md` as a pre-build context file. The mapping work is what moves Repo Grounding — the codebase only counts once it's been **mapped to THIS feature**. |
-| **C. Existing exploration** | `/ritual context-pulse exp-7a2b9c` (exploration id) OR `/ritual context-pulse "Conversion attribution"` (name lookup) | Fetch state, score against current data. The standard path. |
-| **D. Inline** | Hook lines fired automatically inside `/ritual build` (Steps 7.4, 8, 9, 10 — see `cli-output-contract.md` § Inline pulses, the source of truth for in-flow rendering) | Computed per-step delta against the prior pulse for the same exploration. |
+| **A. Naked** | `/ritual-context-pulse` with no args, no session context, no in-flight exploration | Codebase is **table stakes** — having one doesn't move the score for a feature that hasn't been described. Score is near zero (just whatever workspace knowledge graph counts toward Repo Grounding). Recommended action: *"Give me a feature description, or run `/ritual-build`."* |
+| **B. Cold-call feature** | `/ritual-context-pulse Add billing export for workspace admins` (description, no matching exploration) | The agent maps the description to the codebase + knowledge graph, finds candidate files and prior decisions, and offers to seed `CONTEXT-<feature>.md` as a pre-build context file. The mapping work is what moves Repo Grounding — the codebase only counts once it's been **mapped to THIS feature**. |
+| **C. Existing exploration** | `/ritual-context-pulse exp-7a2b9c` (exploration id) OR `/ritual-context-pulse "Conversion attribution"` (name lookup) | Fetch state, score against current data. The standard path. |
+| **D. Inline** | Hook lines fired automatically inside `/ritual-build` (Steps 7.4, 8, 9, 10 — see `cli-output-contract.md` § Inline pulses, the source of truth for in-flow rendering) | Computed per-step delta against the prior pulse for the same exploration. |
 
 ### Workflow
 
@@ -62,13 +62,13 @@ Classify the input:
 3. **If no args:** progressive fallback —
  - **Step 1a:** Is the user actively discussing one exploration this session? If yes, use it silently (surface what was picked: *"Pulsing exploration '{name}'…"*). Mode C.
  - **Step 1b:** Otherwise, call `list_explorations(workspace_id)`. Any in 📍 / 💬 / ✅ / 🛠 state? If exactly one, use it. If 2–5, show a numbered picker. Mode C.
- - **Step 1c:** Cold start (workspace has nothing in flight): Mode A. Prompt: *"No in-flight explorations. Pulse a feature ask instead? Describe the feature you're considering, or run `/ritual build`."*
+ - **Step 1c:** Cold start (workspace has nothing in flight): Mode A. Prompt: *"No in-flight explorations. Pulse a feature ask instead? Describe the feature you're considering, or run `/ritual-build`."*
 
-The agent **always surfaces what it picked** (cite the specific signal). The user always knows whether they're pulsing the right thing; easy escape: `/ritual context-pulse <other>` to override.
+The agent **always surfaces what it picked** (cite the specific signal). The user always knows whether they're pulsing the right thing; easy escape: `/ritual-context-pulse <other>` to override.
 
 #### Step CP1.5 — Mode B: seed a pre-build context file
 
-This is the upgrade path. When Mode B is classified (feature description, no exploration), the agent does the codebase mapping that would otherwise happen in `/ritual build` Step 3 — but BEFORE the user has committed to building. The output is a markdown file that `/ritual build` picks up automatically when run.
+This is the upgrade path. When Mode B is classified (feature description, no exploration), the agent does the codebase mapping that would otherwise happen in `/ritual-build` Step 3 — but BEFORE the user has committed to building. The output is a markdown file that `/ritual-build` picks up automatically when run.
 
 Sub-steps:
 
@@ -103,7 +103,7 @@ Sub-steps:
 
  > Want me to seed this as a starter context file? `CONTEXT-billing-export.md`
  > will capture: your ask + the 4 candidate files + the 2 prior knowledge graph decisions
- > + the deferral. `/ritual build` will pick it up at Step 3 and skip
+ > + the deferral. `/ritual-build` will pick it up at Step 3 and skip
  > recon. Pre-loads context — debt should drop ~20-30% before discovery
  > even runs.
  >
@@ -113,7 +113,7 @@ Sub-steps:
  > (y / add some refs first / refine the description first / no)
 
  - **y** → write `CONTEXT-<slug>.md` to repo root using the template below. Tell the user the path. End with: *"Open in your editor? (y/N)"*.
- - **add some refs first** → enter the same flow as `/ritual build` Step 3.5: collect content via `Read` / `WebFetch` / pasted text, detect `source_content_type` per item, hold the refs in session memory. Once an exploration eventually exists (via `/ritual build`), call `add_knowledge_source` for each. For PRE-EXPLORATION pulses where no exploration exists yet, just acknowledge what was provided + note that registration happens when the user proceeds to `/ritual build`. Each ref attached bumps Repo Grounding by +5 (cap +15 from refs) in subsequent pulses.
+ - **add some refs first** → enter the same flow as `/ritual-build` Step 3.5: collect content via `Read` / `WebFetch` / pasted text, detect `source_content_type` per item, hold the refs in session memory. Once an exploration eventually exists (via `/ritual-build`), call `add_knowledge_source` for each. For PRE-EXPLORATION pulses where no exploration exists yet, just acknowledge what was provided + note that registration happens when the user proceeds to `/ritual-build`. Each ref attached bumps Repo Grounding by +5 (cap +15 from refs) in subsequent pulses.
  - **refine the description first** → ask what to adjust, loop back to CP1.5 step 1 with the refined description.
  - **no** → end the pulse here. No file written.
 
@@ -122,7 +122,7 @@ Sub-steps:
  ```markdown
  <!-- Ritual context seed — generated {ISO date} -->
  <!-- Refreshed at {ISO datetime UTC} --> <!-- updated every re-pulse; bias toward freshness -->
- <!-- Generated by /ritual context-pulse "{feature description}" -->
+ <!-- Generated by /ritual-context-pulse "{feature description}" -->
  <!-- Pulse: Reasoning Readiness {readiness}% · Context Debt {debt}% — surface: {state-tier} -->
 
  # Context: {feature description}
@@ -146,13 +146,13 @@ Sub-steps:
  from "{exploration name}" — may collide with this feature.
  {endfor}
 
- ## Open questions for /ritual build to address
+ ## Open questions for /ritual-build to address
  {1–3 questions the agent inferred from gaps in the description,
  e.g. "Data source: which table is the source of truth?",
  "Permission tier: admin-only or delegated?"}
 
  ---
- Next: run `/ritual build "{feature description}"`. Step 3 will detect
+ Next: run `/ritual-build "{feature description}"`. Step 3 will detect
  this file and skip fresh recon — readiness should jump 20-30% before
  discovery even runs.
  ```
@@ -175,7 +175,7 @@ Sub-steps:
 
 - **No collision**: write the new seed silently.
 
-**Why bias toward freshness:** the seed is *staging context for an imminent build*, not a long-term artifact. Once the seed gets consumed by `/ritual build` Step 3.0, it gets promoted to `.ritual/exploration-notes/<exploration-id>.md` (Step 6.1) where it becomes immutable history. While it's still at the repo root as `CONTEXT-*.md`, it's a working file and should reflect the *current* state of the world.
+**Why bias toward freshness:** the seed is *staging context for an imminent build*, not a long-term artifact. Once the seed gets consumed by `/ritual-build` Step 3.0, it gets promoted to `.ritual/exploration-notes/<exploration-id>.md` (Step 6.1) where it becomes immutable history. While it's still at the repo root as `CONTEXT-*.md`, it's a working file and should reflect the *current* state of the world.
 
 
 #### Step CP2 — Score the pulse
@@ -248,16 +248,16 @@ Two visual modes, picked by context. The label terminology is tiered:
 | **Context Debt** | Both modes — inverse score | The product category framing |
 | **Context surface:** | Full-pulse state-tier label | The 5-tier classification (Raw ask / Under-specified / Exploration-safe / Recommendation-ready / Implementation-ready) |
 
-**Compact pulse** — single line, used by default for inline mid-`/ritual build` pulses when nothing dramatic happened this step. Uses the full capitalized labels (NOT shorthand) for consistency with the full pulse and the docs:
+**Compact pulse** — single line, used by default for inline mid-`/ritual-build` pulses when nothing dramatic happened this step. Uses the full capitalized labels (NOT shorthand) for consistency with the full pulse and the docs:
 
 ```
 Pulse: Reasoning Readiness 72% · Context Debt 28% · +24% (decision resolution)
 ```
 
 **Full pulse** — with bars + spelled-out labels. Used for **exactly one** case:
-- The user invoked `/ritual context-pulse` directly (the breakdown IS the deliverable there).
+- The user invoked `/ritual-context-pulse` directly (the breakdown IS the deliverable there).
 
-**Never inline.** Pulses emitted from inside `/ritual build` / `/ritual resume` are ALWAYS the compact one-liner — including on a tier crossing, a ≥15% jump, or a regression. Those used to trigger full mode; they no longer do (the bar wall buried the gate's actual decision). The inline rule is owned by `cli-output-contract.md` § Inline pulses — that file is the source of truth for in-flow rendering; this section owns only the standalone command.
+**Never inline.** Pulses emitted from inside `/ritual-build` / `/ritual-resume` are ALWAYS the compact one-liner — including on a tier crossing, a ≥15% jump, or a regression. Those used to trigger full mode; they no longer do (the bar wall buried the gate's actual decision). The inline rule is owned by `cli-output-contract.md` § Inline pulses — that file is the source of truth for in-flow rendering; this section owns only the standalone command.
 
 ```
 Reasoning readiness: 48% → 72% (+24%)
@@ -292,7 +292,7 @@ End every pulse with one recommended next step + a cheap escape hatch. Anchor th
 
 | Tier | Recommended next action prompt |
 |---|---|
-| Raw ask | *"Frame this with `/ritual build "<your-description>"`; scoping will pull debt down on its own. Run now? (y/N)"* |
+| Raw ask | *"Frame this with `/ritual-build "<your-description>"`; scoping will pull debt down on its own. Run now? (y/N)"* |
 | Under-specified | *"You're framed but discovery is thin. Continue discovery? (y/N)"* |
 | Exploration-safe | *"Recommendations next — start the agentic run? (y/N or pulse again after acceptance)"* |
 | Recommendation-ready | *"Generate the build brief. Run now? (y/N)"* |
@@ -304,7 +304,7 @@ End every pulse with one recommended next step + a cheap escape hatch. Anchor th
 
 1. `score_context_pulse` (CP2 — canonical server-side scoring; persists to `context_pulses` for trend + delta)
 
-**Fallback path:** read-tier subset of `/ritual build`'s tools, used when `score_context_pulse` errors or the MCP server doesn't expose the tool.
+**Fallback path:** read-tier subset of `/ritual-build`'s tools, used when `score_context_pulse` errors or the MCP server doesn't expose the tool.
 
 1. `get_exploration` (CP2 fallback — problem statement + anti-goals + metadata)
 2. `get_recommendations` (CP2 fallback — rec status counts)
@@ -318,17 +318,17 @@ End every pulse with one recommended next step + a cheap escape hatch. Anchor th
 
 Not yet available (do not reference in renders): an `--explain` narrative flag, `--compare before.json after.json` diffs, and profile-aware weights.
 
-### Inline pulses in `/ritual build`
+### Inline pulses in `/ritual-build`
 
-The same scoring engine fires after each significant `/ritual build` step. The user watches the debt drop step-by-step — that's the encouragement loop that keeps them moving through the build flow instead of shortcutting to code-generation.
+The same scoring engine fires after each significant `/ritual-build` step. The user watches the debt drop step-by-step — that's the encouragement loop that keeps them moving through the build flow instead of shortcutting to code-generation.
 
-The inline rule is owned by `cli-output-contract.md` § Inline pulses — that file is the source of truth. Summary: the pulse fires after **Steps 7.4, 8, 9, and 10** (the first when the user proceeds from curating discovery questions; never at the Scope gates or after recon), and every inline pulse is **always the compact one-liner** — the full bar breakdown belongs only to a direct `/ritual context-pulse` invocation.
+The inline rule is owned by `cli-output-contract.md` § Inline pulses — that file is the source of truth. Summary: the pulse fires after **Steps 7.4, 8, 9, and 10** (the first when the user proceeds from curating discovery questions; never at the Scope gates or after recon), and every inline pulse is **always the compact one-liner** — the full bar breakdown belongs only to a direct `/ritual-context-pulse` invocation.
 
 Each pulse line replaces no other output — it's added BEFORE the existing "next step" prompt for that step. So a user reading the chat sees: *(step output) → (pulse line) → (next step prompt)*.
 
-### Relationship to `/ritual build`
+### Relationship to `/ritual-build`
 
-The standalone `/ritual context-pulse` and inline pulses share the same scoring code, just different render modes (compact vs full) and different trigger points (user-invoked vs automatic). One source of truth for the formula; two surfaces for the user.
+The standalone `/ritual-context-pulse` and inline pulses share the same scoring code, just different render modes (compact vs full) and different trigger points (user-invoked vs automatic). One source of truth for the formula; two surfaces for the user.
 
 ### Future context-pulse extensions
 

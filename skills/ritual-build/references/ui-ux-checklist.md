@@ -1,6 +1,6 @@
 ## UX brief review — methodology + output schema
 
-Reference for `/ritual build` Step 10.5 (the opt-in `ux-review` path) and any standalone caller that needs the same shape.
+Reference for `/ritual-build` Step 10.5 (the opt-in `ux-review` path) and any standalone caller that needs the same shape.
 
 The brief that came out of Step 10 is implementation-ready from a *what* standpoint (RBs, requirements, acceptance criteria). This review is implementation-ready from an *experience* standpoint — the things coding-agent plan mode otherwise interrogates the user for, surfaced and answered with evidence before any code is touched.
 
@@ -186,7 +186,7 @@ Do not start coding until the plan is approved.
 - **Not a re-derivation of the brief.** If the brief already specifies a state, the review says so in one line and moves on. The review's value is on the gaps, mismatches, and codebase-grounding — not on rewriting good content.
 - **Not an excuse to expand scope.** Stay within the brief's Goal and Non-goals. UX coverage gaps that fall OUTSIDE the brief's scope go on the deferrals list, not the acceptance criteria.
 - **Not a design tool.** This produces a planning packet, not visual designs. Where the codebase has no design system, the review surfaces that fact and routes back to the user — it does not propose one unilaterally.
-- **Not a check on existing implementations.** Use `/ritual lineage` for "what decisions shaped this code already." This review is forward-looking only.
+- **Not a check on existing implementations.** Use `/ritual-lineage` for "what decisions shaped this code already." This review is forward-looking only.
 
 ---
 

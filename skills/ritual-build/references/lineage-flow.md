@@ -1,4 +1,4 @@
-## /ritual lineage
+## /ritual-lineage
 
 **"Show me the history on these files."** The user gives the agent a file path (or a directory, or a set of paths) and the agent surfaces every prior exploration, recommendation, decision, and deferral that touched those files — pulled from the workspace's knowledge graph.
 
@@ -13,7 +13,7 @@ Output: a per-file timeline of decisions + deferrals + the explorations they cam
 - Pre-implementation: planning a refactor; want to surface deferrals that might block the new approach.
 
 When **not** to use:
-- The user wants to start a new exploration → that's `/ritual build`.
+- The user wants to start a new exploration → that's `/ritual-build`.
 - The user wants a workspace-wide tour (no specific files in mind) → just ask the agent in plain English; the codebase + knowledge graph are reachable via the standard MCP read tools (`list_explorations`, `query_knowledge_graph`, etc.).
 
 ### Input shapes
@@ -49,7 +49,7 @@ If the list ends up empty (e.g. directory glob matched nothing, or the user's pa
 
 #### Step L2 — Query the knowledge graph
 
-Call `query_knowledge_graph(workspace_id, sources=[paths])`. This is the same tool `/ritual build`'s Steps 4 / 5 / 10 use for knowledge graph injection — the difference here is the user-facing output is the QUERY RESULT, not silent priorContext.
+Call `query_knowledge_graph(workspace_id, sources=[paths])`. This is the same tool `/ritual-build`'s Steps 4 / 5 / 10 use for knowledge graph injection — the difference here is the user-facing output is the QUERY RESULT, not silent priorContext.
 
 The response shape includes:
 - `decisions[]` — each with `area`, `choice`, `sourceRecommendationId`, `recommendationStatusAtImplementation`, `relatedFiles[]`, `createdAt`, `explorationId`, `explorationName`, `prNumber`/`prUrl` (from the linked `ImplementationRecord`)
@@ -115,7 +115,7 @@ If `kgContextUsed.implementationCount === 0` across all files (no lineage anywhe
 > - These files have not gone through Ritual yet.
 > - Prior work was not synced with `sync_implementation`.
 >
-> Next: proceed normally, or start `/ritual build` if this work should become part of workspace memory.
+> Next: proceed normally, or start `/ritual-build` if this work should become part of workspace memory.
 
 #### Step L4 — Single recommended next step
 
@@ -123,10 +123,10 @@ End with one cheap call-to-action. The right action depends on what the lineage 
 
 | Lineage shape | Recommended next step |
 |---|---|
-| Open deferrals touching files the user is about to change | *"⚠ {N} open deferral{s} overlap your scope. Before you write code: want me to surface the full deferral context (`/ritual build` brief with `sources` set to these files)?"* |
+| Open deferrals touching files the user is about to change | *"⚠ {N} open deferral{s} overlap your scope. Before you write code: want me to surface the full deferral context (`/ritual-build` brief with `sources` set to these files)?"* |
 | Decisions shipped recently (< 30 days) the user might collide with | *"Recent decisions on these files. Want me to fetch the full build brief from the source exploration? (it's still cached)"* |
 | Old, stable decisions only | *"Lineage looks settled. Anything else, or are you good to proceed?"* |
-| No lineage | *"Nothing on these files yet. Drag in different files or start a fresh `/ritual build` exploration if you want to log this work into the workspace."* |
+| No lineage | *"Nothing on these files yet. Drag in different files or start a fresh `/ritual-build` exploration if you want to log this work into the workspace."* |
 
 ### Tools used
 
@@ -139,15 +139,15 @@ Optional onward calls if the user pivots to action (Step L4):
 - `generate_build_brief` if they want the full brief with deferrals surfaced
 - `get_exploration` if they want to drill into one of the source explorations
 
-No new MCP tools required. `/ritual lineage` is a thin formatter over `query_knowledge_graph`.
+No new MCP tools required. `/ritual-lineage` is a thin formatter over `query_knowledge_graph`.
 
-### Relationship to `/ritual build`'s priorContext block
+### Relationship to `/ritual-build`'s priorContext block
 
 Same underlying data, opposite direction:
 
-- **Inside `/ritual build`**: lineage flows in as *silent priorContext* — the LLM sees prior decisions + deferrals when synthesizing considerations / problem statement / build brief. The user never sees the raw knowledge graph query.
-- **As `/ritual lineage`**: lineage IS the experience. The agent surfaces the raw knowledge graph query, formatted, to the user. No LLM synthesis on top.
+- **Inside `/ritual-build`**: lineage flows in as *silent priorContext* — the LLM sees prior decisions + deferrals when synthesizing considerations / problem statement / build brief. The user never sees the raw knowledge graph query.
+- **As `/ritual-lineage`**: lineage IS the experience. The agent surfaces the raw knowledge graph query, formatted, to the user. No LLM synthesis on top.
 
-When a user is mid-`/ritual build` and wants to drill into one of the prior implementations the brief mentioned, that's the natural moment to suggest: *"Want me to run `/ritual lineage` on these files for full context?"*
+When a user is mid-`/ritual-build` and wants to drill into one of the prior implementations the brief mentioned, that's the natural moment to suggest: *"Want me to run `/ritual-lineage` on these files for full context?"*
 
 ---

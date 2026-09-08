@@ -1,4 +1,4 @@
-# /ritual refine — re-ground your build brief against the current codebase
+# /ritual-refine — re-ground your build brief against the current codebase
 
 Grounds the build brief you arrived with against the current repo+branch state. Runs codebase
 recon, drops already-implemented recommendations, attaches codebase sources, rewrites the brief
@@ -19,12 +19,12 @@ path. Refine
 does NOT call `generate_build_brief` and does NOT re-synthesize on the server; it sharpens the
 brief you already have, in place, against real code. It may then sync the grounded result back
 with `save_reconciled_brief` (a save, not a re-synthesis; non-blocking — Step 5.5), but the local
-file stays the source of truth for `/ritual begin`.
+file stays the source of truth for `/ritual-begin`.
 
 **Refine = grounding a brief you already have.** By the time refine runs, you arrived with a
 brief (the prelogin handoff) and a repo. Refine's job is to sharpen that brief against the
 current codebase: "I have a plan built from my description, now ground it in where the code
-actually is." Its output is a refined per-exploration brief that `/ritual begin` executes.
+actually is." Its output is a refined per-exploration brief that `/ritual-begin` executes.
 
 ## Step 0 — Is there anything to refine? (deep-link guard)
 
@@ -32,12 +32,12 @@ Refine grounds a brief **you already have**, and the paragraph above says where 
 
 So before anything else:
 
-- **No local brief (nothing under `.ritual/local/build-briefs/` and no legacy `.ritual/build-brief.md`) and no bound workspace?** This is a session that was never established. Do NOT attempt to refine, and do NOT synthesize a brief to have something to grind against. Hand off to `/ritual resume <exploration_id>` if you were given an id, or `/ritual resume` if you were not — that flow resolves the workspace, binds the repo, and lands on the right stage, including the stage where the brief is still generating.
+- **No local brief (nothing under `.ritual/local/build-briefs/` and no legacy `.ritual/build-brief.md`) and no bound workspace?** This is a session that was never established. Do NOT attempt to refine, and do NOT synthesize a brief to have something to grind against. Hand off to `/ritual-resume <exploration_id>` if you were given an id, or `/ritual-resume` if you were not — that flow resolves the workspace, binds the repo, and lands on the right stage, including the stage where the brief is still generating.
 - **Brief present?** Continue with Step 1 below; nothing changes.
 
 This guard is the belt to the deep-link prompt's braces: the prompt says `resume`, but an agent that reasons its way to `refine` anyway should land somewhere that works rather than failing on a missing file.
 
-**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual refine`
+**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual-refine`
 MUST begin with the 5-stage build rail per `references/cli-output-contract.md` § Build rail,
 positioned at the recommendations/brief stage — re-grounding is late-planning, not implementation.
 
@@ -82,7 +82,7 @@ step between entering the flow and "the brief is updated"):*
 > » The grounded brief {caught | corrected | confirmed} {one specific}: {how the code reality reshaped it}.
 > » Net: {materially changed my build plan | sharpened the details | mostly confirmed my read} — {≤10-word justification}.
 >
-> `/ritual begin` hands it to your agent — auto mode to build, plan mode to review first.
+> `/ritual-begin` hands it to your agent — auto mode to build, plan mode to review first.
 > `drill {N}` inspects one requirement. `view` opens the brief as a readable page. Reply `pause` to stop here.
 
 **Agent-debrief rules (the `»` block above, headed "What this changed for me (your
@@ -120,9 +120,9 @@ first person, about what the Ritual pass objectively changed — not marketing c
  the R1 render (same message, after the saved line) — it is not a separate message.
 
 *R2 — pause acknowledgment (the ONLY valid response to `pause` at the final gate):*
-> Paused. `/ritual begin` whenever you're ready.
+> Paused. `/ritual-begin` whenever you're ready.
 
-ONE line, exactly that shape — no recap of what was done, no restating what `/ritual begin`
+ONE line, exactly that shape — no recap of what was done, no restating what `/ritual-begin`
 does (R1 already said it), no "nothing further will run" elaboration.
 
 **R1 ends the turn — one message, then stop.** After emitting R1, output NOTHING
@@ -130,7 +130,7 @@ else in that turn: no follow-up summary, no "Refine is done" recap, no second
 reminder of the options (they are already R1's last two lines). Two messages at
 the final gate is a render leak even when the second one is accurate — e.g.
 the final render followed in the same turn by "Refine is done — the
-grounded brief is saved. To build, run `/ritual begin`…", a verbatim duplicate of
+grounded brief is saved. To build, run `/ritual-begin`…", a verbatim duplicate of
 what it had just said.
 
 **Tool-call silence.** Between renders you will call tools (git probes, brief reads,
@@ -140,7 +140,7 @@ tool fails and blocks the flow, that failure surfaces INSIDE the next render (or
 neither-exists stop), never as a standalone commentary line.
 
 **Reply routing at the final gate is closed-set:** a user reply maps to exactly one of
-{`drill` detail inside the same render frame, `view`, R2}. (`/ritual begin` is a new flow,
+{`drill` detail inside the same render frame, `view`, R2}. (`/ritual-begin` is a new flow,
 not a reply.) There is no fourth kind of response. If the reply is unrecognized, re-emit
 the gate's option line — one line, nothing else.
 
@@ -203,7 +203,7 @@ directly via `get_exploration` and confirm it matches. The config binding
 takes precedence over the list scan. A fresh prelogin exploration may be a draft the roster
 does not list, so the pinned `explorationId` is the reliable path.
 
-If an exploration is resolved, note its `id`, `name`, and `state`. `/ritual begin` uses this
+If an exploration is resolved, note its `id`, `name`, and `state`. `/ritual-begin` uses this
 id for `sync_implementation`, so surface it if found — but this is a SOFT binding.
 
 If no exploration resolves but a local brief exists with real content (either location), proceed
@@ -288,13 +288,13 @@ NOT re-synthesize on the server. The brief you already have (the prelogin brief 
 - Keep every constraint, goal, and requirement the original brief stated. Never drop substance.
 
 Write the sharpened brief back to `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`. That file is the source of
-truth for `/ritual begin` — no `generate_build_brief`, no re-synthesis, no polling.
+truth for `/ritual-begin` — no `generate_build_brief`, no re-synthesis, no polling.
 
 ### Step 5.5 — Sync the grounded brief back to the cloud (non-blocking)
 
 This keeps the server's copy of the brief in step with the grounding you just did, recorded as
 a reconciled version with provenance. It is STRICTLY OPTIONAL to the flow: it never blocks, and
-`/ritual begin` runs off the LOCAL `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` regardless of whether it succeeds —
+`/ritual-begin` runs off the LOCAL `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` regardless of whether it succeeds —
 begin neither reads nor waits on it.
 
 Skip this step entirely if Step 1 resolved NO exploration id (a local-brief-only run has
@@ -363,5 +363,5 @@ Never omit the "What changed" block or the agent debrief.
 - refine does NOT call `generate_build_brief` and does NOT re-synthesize on the server. The
  brief already exists on disk; refine sharpens it in place. It MAY call `save_reconciled_brief`
  (Step 5.5) to sync the grounded brief back — a save, not a re-synthesis, and non-blocking;
- `/ritual begin` never depends on it.
+ `/ritual-begin` never depends on it.
 - No em-dashes in any output.

@@ -1,7 +1,7 @@
 # Agent output contract
 
 > **Planning-turn rendering is governed by `references/render-contract.md`** — the
-> single source of truth for what may be user-visible during `/ritual build`'s
+> single source of truth for what may be user-visible during `/ritual-build`'s
 > planning phase (the gate / status / nothing allowlist + forbidden tokens). This
 > file covers output *style* (density, the progress anchor, surface-aware
 > rendering); the render-contract owns *what may render at all*. When they differ,
@@ -103,11 +103,11 @@ Do not ask for confirmation after safe defaults. State the default and give a li
 
 Use the parenthetical form when the surrounding sentence is the readiness/debt summary, for example: `Pulse: Reasoning Readiness ~35% · Context Debt 65% (scope not locked yet)`. The standalone form is acceptable in headings or status badges, e.g. `Phase: code recon`.
 
-**Surface-aware continuation prompts:** Do NOT tell users to "Press Enter" inside `/ritual build` or `/ritual resume` when running in an agent chat surface (Claude Code, Cursor, Codex, etc.). Chat agents cannot reliably observe empty input — pressing Enter typically inserts a newline or sends nothing visible, and the agent has no callback for "user pressed Enter and didn't type anything." Telling the user to do that creates a stuck-flow trap.
+**Surface-aware continuation prompts:** Do NOT tell users to "Press Enter" inside `/ritual-build` or `/ritual-resume` when running in an agent chat surface (Claude Code, Cursor, Codex, etc.). Chat agents cannot reliably observe empty input — pressing Enter typically inserts a newline or sends nothing visible, and the agent has no callback for "user pressed Enter and didn't type anything." Telling the user to do that creates a stuck-flow trap.
 
 | Surface | Continuation contract |
 |---|---|
-| **Agent chat** (`/ritual build`, `/ritual resume`, anywhere this SKILL drives the conversation) | Use an explicit reply token. The token IS the visible CTA. Empty input is NOT a valid proceed signal. |
+| **Agent chat** (`/ritual-build`, `/ritual-resume`, anywhere this SKILL drives the conversation) | Use an explicit reply token. The token IS the visible CTA. Empty input is NOT a valid proceed signal. |
 | **Real interactive CLI** (interactive login commands, etc. — code calling `prompt(...)` against a real TTY) | `Press Enter` is fine; the CLI is actually reading stdin and an empty line is a meaningful signal. |
 
 **Visible reply tokens per phase** (single visible CTA each — accept aliases internally but don't list them all):
@@ -139,7 +139,7 @@ Why one visible token (not three): the user is in a decision moment, scanning. `
 
 When in doubt, prefer one blank line over none. The cost of a tiny gap is unnoticeable; the cost of dense crammed prose is real reader friction. Do NOT insert two blank lines in a row — that creates dead space and breaks visual rhythm.
 
-**Build progress anchor — load-bearing (never omit, render per surface):** Every TOP-LEVEL user-facing message in `/ritual build` and `/ritual resume` MUST begin with a progress anchor before any other content. The anchor is the user's only "where am I in the flow" signal; dropping it silently is worse than printing it redundantly. The agent was historically inferring the rail from examples and squeezing it out under any pressure — this rule makes it explicit, with the exact rendering chosen per surface so the anchor doesn't wrap badly on narrow chat or duplicate a persistent UI stepper.
+**Build progress anchor — load-bearing (never omit, render per surface):** Every TOP-LEVEL user-facing message in `/ritual-build` and `/ritual-resume` MUST begin with a progress anchor before any other content. The anchor is the user's only "where am I in the flow" signal; dropping it silently is worse than printing it redundantly. The agent was historically inferring the rail from examples and squeezing it out under any pressure — this rule makes it explicit, with the exact rendering chosen per surface so the anchor doesn't wrap badly on narrow chat or duplicate a persistent UI stepper.
 
 **Surface-aware rendering** — the canonical five stages stay constant; only the visual changes:
 
@@ -289,7 +289,7 @@ Done: Scope · Next: Recommendations
 
 The host app pins a stepper above the conversation; the message only carries the stage label as a top-line header (e.g. `Scope` or `Phase: Scope`). At phase transitions, resumes, and decision gates, include the compact chip in the body even on rich-app surface so the transcript reads cleanly when exported.
 
-All `/ritual build` and `/ritual resume` top-level messages in `references/build-flow.md` anchor to this spec — when a stage transitions, the existing examples advance the marker per the canonical ordering. If you need to rename a stage in the future, update this table first; everything else follows.
+All `/ritual-build` and `/ritual-resume` top-level messages in `references/build-flow.md` anchor to this spec — when a stage transitions, the existing examples advance the marker per the canonical ordering. If you need to rename a stage in the future, update this table first; everything else follows.
 
 ### Agent experience cheat-sheet
 
@@ -319,7 +319,7 @@ This rule applies to: Step 9.5 (`get_requirement_set_status`), Step 10b (`get_bu
 
 The context pulse appears **only from the curate-questions step onward** — emit it after **Steps 7.4, 8, 9, and 10**, the FIRST one being when the user proceeds from curating discovery questions. Do NOT emit a pulse at the Scope-entry gate, the Scope frame gate, or after recon (Steps 3/5) — early on the score is low and noisy and the line just clutters the gate. This is the visible encouragement loop once the build is genuinely moving — the user watches **reasoning readiness** climb (context debt drop) as discovery → recommendations → brief land.
 
-The pulse rule and visual specs live in the [§ /ritual context-pulse](#ritual-context-pulse) section below — see *Step CP5 — visual modes*. TL;DR:
+The pulse rule and visual specs live in the [§ /ritual-context-pulse](#ritual-context-pulse) section below — see *Step CP5 — visual modes*. TL;DR:
 
 **Placement — always at the BOTTOM of the message, never the first line.** The pulse score line sits **immediately above the action/CTA line** (with the one-sentence lift bridge), so the message leads with the step's actual content and ends with the progress signal + the next move. Never open a message with the pulse.
 
@@ -343,14 +343,14 @@ The pulse rule and visual specs live in the [§ /ritual context-pulse](#ritual-c
  3. **Terse + declarative** — no `now let me help you improve this` assistant/affect register.
  On the LAST scoreable step (Step 10, implementation-ready), there's no further lift — the bridge becomes the readiness statement: `The brief is your build path — implement when ready.`
 
-- **Inline pulses are ALWAYS the one-line compact form — never the bar breakdown (load-bearing).** No exception for a tier crossing, a ≥15% jump, or a regression: inside `/ritual build` and `/ritual resume` the pulse is ONE score line + ONE lift-bridge sentence. The dimension bars (`Feature clarity ▓▓▓░░ 35%`, …), the `Reasoning readiness: A% → B%` two-line header, and the `Context surface:` tier line belong ONLY to an explicit `/ritual context-pulse` invocation, where the breakdown IS the deliverable. Rendering them inline buries the step's actual decision under a wall of numbers the user didn't ask for — the gate's content is the point; the pulse is a footnote to it.
+- **Inline pulses are ALWAYS the one-line compact form — never the bar breakdown (load-bearing).** No exception for a tier crossing, a ≥15% jump, or a regression: inside `/ritual-build` and `/ritual-resume` the pulse is ONE score line + ONE lift-bridge sentence. The dimension bars (`Feature clarity ▓▓▓░░ 35%`, …), the `Reasoning readiness: A% → B%` two-line header, and the `Context surface:` tier line belong ONLY to an explicit `/ritual-context-pulse` invocation, where the breakdown IS the deliverable. Rendering them inline buries the step's actual decision under a wall of numbers the user didn't ask for — the gate's content is the point; the pulse is a footnote to it.
 - A **regression** stays compact too: keep the `↑M%` direction marker and let the lift bridge carry the explanation in words (e.g. *"the dip is the unreviewed set — reviewing them is what settles it"*). One sentence, not a scorecard.
 - The score line goes near the top of the step's message; the lift bridge goes right before the action line. Both are additive, not replacements.
 - Prefer `score_context_pulse` (one canonical server-side call, persisted for trend reporting); fall back to deterministic agent-side counts only if the tool errors. No LLM call in the hot path either way.
 
-**Why full labels (load-bearing):** Users read `28% debt` as a vague accounting number. They read `Context Debt 28%` as a named concept with weight — the same name they'd see in `/ritual context-pulse`'s full view, in the score breakdown, in the docs. Consistency across compact and full forms means the user doesn't have to translate.
+**Why full labels (load-bearing):** Users read `28% debt` as a vague accounting number. They read `Context Debt 28%` as a named concept with weight — the same name they'd see in `/ritual-context-pulse`'s full view, in the score breakdown, in the docs. Consistency across compact and full forms means the user doesn't have to translate.
 
-The user can also invoke `/ritual context-pulse` directly anytime mid-flow to get a full breakdown.
+The user can also invoke `/ritual-context-pulse` directly anytime mid-flow to get a full breakdown.
 
 ## User-facing vocabulary and labels
 
@@ -367,7 +367,7 @@ Use engineer-facing language in CLI output:
 
 Internal step labels are allowed inside reference docs and implementation notes. Translate them before showing text to users.
 
-**Why the `decisions` rule:** copy that surfaces `5 decisions logged` or `Decision: <text>` as status badges reads as a parallel concept to recommendations, which inflates the cognitive surface. The lifecycle the user actually tracks is `recommendation → approved → implemented`. The decision artifacts exist (and are still surfaced explicitly by `/ritual lineage`, where decision-on-file archeology IS the subcommand's purpose), but they are NOT a headline concept in `/ritual build` or `/ritual resume`. When the user is about to authorize `sync_implementation`, frame the moment as "log this implementation" — not "log these N decisions."
+**Why the `decisions` rule:** copy that surfaces `5 decisions logged` or `Decision: <text>` as status badges reads as a parallel concept to recommendations, which inflates the cognitive surface. The lifecycle the user actually tracks is `recommendation → approved → implemented`. The decision artifacts exist (and are still surfaced explicitly by `/ritual-lineage`, where decision-on-file archeology IS the subcommand's purpose), but they are NOT a headline concept in `/ritual-build` or `/ritual-resume`. When the user is about to authorize `sync_implementation`, frame the moment as "log this implementation" — not "log these N decisions."
 
 ## Dense list format
 
@@ -391,7 +391,7 @@ Use blank lines between items. Do not rely on terminal auto-wrap to make dense p
 
 ### Empty workspace / no-history build
 
-For no-arg `/ritual build` with zero explorations, do not frame `/ritual context-pulse` as the recommended first step. Use:
+For no-arg `/ritual-build` with zero explorations, do not frame `/ritual-context-pulse` as the recommended first step. Use:
 
 ```text
 Ritual build
@@ -470,4 +470,4 @@ Answering your picked questions, then generating recommendations.
 
 ### Shipped work visibility
 
-On first `/ritual build`, show shipped explorations only when they are actionable: open deferrals/follow-ups, implemented-ahead state, recent context likely to shape new work, or explicit user request for lineage/history. Use `✓ shipped with follow-ups` when open deferrals exist and `✓ shipped context` only when the shipped work is useful provenance. Do not show fully complete shipped work by default.
+On first `/ritual-build`, show shipped explorations only when they are actionable: open deferrals/follow-ups, implemented-ahead state, recent context likely to shape new work, or explicit user request for lineage/history. Use `✓ shipped with follow-ups` when open deferrals exist and `✓ shipped context` only when the shipped work is useful provenance. Do not show fully complete shipped work by default.

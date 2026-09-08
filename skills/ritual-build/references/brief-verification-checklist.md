@@ -1,6 +1,6 @@
 ## Brief verification — methodology + output schema
 
-Reference for `/ritual build` Step 10b.5 (the auto-fire verify-brief pass that runs after the build brief is generated, before the user reviews it at the Step 10d gate).
+Reference for `/ritual-build` Step 10b.5 (the auto-fire verify-brief pass that runs after the build brief is generated, before the user reviews it at the Step 10d gate).
 
 The brief generator runs server-side and **does not have repo access**. It writes assertions about cited files / functions / classes based on the agent's earlier recon summary — which is a text summary, not the actual code. When the brief says *"`is_allowed_to_see` is insufficient — needs token-based access"* but the code actually ships email-allowlist semantics, the contradiction is invisible to the brief generator and to the user reading the brief.
 

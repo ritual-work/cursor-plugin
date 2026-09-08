@@ -1,30 +1,30 @@
-## /ritual begin
+## /ritual-begin
 
-**"Execute an accepted build brief."** Promotes build-flow.md's planning-to-implementation gate to a first-class trigger. Use this when you arrived with a brief already built (via the Ritual web app, `/ritual refine`, or a prior `/ritual build` run that stopped before implementation) and are ready to start coding.
+**"Execute an accepted build brief."** Promotes build-flow.md's planning-to-implementation gate to a first-class trigger. Use this when you arrived with a brief already built (via the Ritual web app, `/ritual-refine`, or a prior `/ritual-build` run that stopped before implementation) and are ready to start coding.
 
 Output: the implementation phase runs against the accepted build brief, ending with `sync_implementation` registering the result in the knowledge graph.
 
-**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual begin` MUST begin with the 5-stage build rail per `references/cli-output-contract.md` § Build rail — both during exploration resolution and once you confirm the accepted brief. The rail starts at Implementation since the planning phase is already done.
+**Build rail is load-bearing here too.** Every top-level user-facing message in `/ritual-begin` MUST begin with the 5-stage build rail per `references/cli-output-contract.md` § Build rail — both during exploration resolution and once you confirm the accepted brief. The rail starts at Implementation since the planning phase is already done.
 
 **Single source of truth.** This file HOLDS the begin steps. SKILL.md only routes to it. Do not restate these steps in SKILL.md.
 
 ### When to use
 
-- The user types `/ritual begin` — they have an accepted build brief and want to start implementation now.
+- The user types `/ritual-begin` — they have an accepted build brief and want to start implementation now.
 - The user arrived from the Ritual web app with a brief already reviewed and approved, and the coding agent session is the execution context.
 - The user wants to hand off from planning (done outside the agent) directly into the implementation phase.
 
 When **not** to use:
 
-- The user does not yet have a build brief -> that is `/ritual build` (new) or `/ritual refine` (ground an imported brief).
-- The user wants to continue an in-flight exploration mid-planning -> that is `/ritual resume`.
-- The user wants to re-run discovery or refine recommendations -> `/ritual refine`.
+- The user does not yet have a build brief -> that is `/ritual-build` (new) or `/ritual-refine` (ground an imported brief).
+- The user wants to continue an in-flight exploration mid-planning -> that is `/ritual-resume`.
+- The user wants to re-run discovery or refine recommendations -> `/ritual-refine`.
 
 ### Workflow
 
 #### Step B1 — Resolve the exploration (same binding as resume/refine)
 
-`begin` resolves the exploration via the SAME repo+branch binding used by `/ritual resume` and `/ritual refine`. The brief can come from EITHER source: the server exploration (a normal `/ritual build`), OR a local per-exploration brief (`.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`) standing on its own (a refined prelogin brief, grounded on disk and never synthesized server-side). `begin` still resolves the exploration id — it is needed for `sync_implementation` at the end — but it does NOT require a core server build brief. A brief on disk is a first-class, executable artifact.
+`begin` resolves the exploration via the SAME repo+branch binding used by `/ritual-resume` and `/ritual-refine`. The brief can come from EITHER source: the server exploration (a normal `/ritual-build`), OR a local per-exploration brief (`.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`) standing on its own (a refined prelogin brief, grounded on disk and never synthesized server-side). `begin` still resolves the exploration id — it is needed for `sync_implementation` at the end — but it does NOT require a core server build brief. A brief on disk is a first-class, executable artifact.
 
 **Resolution order:**
 
@@ -40,8 +40,8 @@ When **not** to use:
 
 1. **Local brief on disk.** Read `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` (the exploration was resolved in B1, so the id is known). **Legacy migration, one-time and silent:** if that file is absent but the flat `.ritual/build-brief.md` exists with real content (not the `_Build brief not available yet._` placeholder), move it into the per-exploration directory first — create the directory, ensure `.ritual/local/` is gitignored per build-flow Step 10c — then read it from there. The flat path is the legacy location from before per-exploration directories; it is not gitignored and can collide across explorations, so nothing reads or writes it beyond this migration.
 
- A real brief at the per-exploration path IS an executable brief — proceed to Step B3. This is the prelogin path: `/ritual refine` grounded the marketing-site brief on disk WITHOUT calling the core `generate_build_brief`, so there is no server build-brief row, and that is expected. Do not block on the server when a real brief is already on disk.
-2. **Server brief.** If there is no usable local brief, call `get_exploration_status`. If it shows an accepted/ready build brief, that satisfies the gate too (the normal `/ritual build` path) — proceed to Step B3.
+ A real brief at the per-exploration path IS an executable brief — proceed to Step B3. This is the prelogin path: `/ritual-refine` grounded the marketing-site brief on disk WITHOUT calling the core `generate_build_brief`, so there is no server build-brief row, and that is expected. Do not block on the server when a real brief is already on disk.
+2. **Server brief.** If there is no usable local brief, call `get_exploration_status`. If it shows an accepted/ready build brief, that satisfies the gate too (the normal `/ritual-build` path) — proceed to Step B3.
 
 `begin` does NOT require a core server build brief; a local `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` stands on its own.
 
@@ -57,9 +57,9 @@ No accepted build brief found for this exploration.
 
 `begin` executes an existing accepted brief. To get one:
 
- · /ritual build — run the full planning cycle (new explorations)
- · /ritual refine — ground an imported brief and sharpen recommendations
- · /ritual resume — pick up an in-flight planning session
+ · /ritual-build — run the full planning cycle (new explorations)
+ · /ritual-refine — ground an imported brief and sharpen recommendations
+ · /ritual-resume — pick up an in-flight planning session
 
 ```
 
@@ -82,7 +82,7 @@ Build brief ready — executing from accepted brief.
 
  · `go` — ready to implement; move to coding
  · `drill {N}` — drill into RB-{N} before deciding
- · `pause` — stop here; resume with /ritual resume
+ · `pause` — stop here; resume with /ritual-resume
 
 ```
 
@@ -90,7 +90,7 @@ Build brief ready — executing from accepted brief.
 
 - **`go` / `y` / `yes` / `proceed` / `continue` / `next` / `implement` / `ship`**: continue to Step B4.
 - **`drill {N}`**: open RB-{N} in the markdown, discuss inline, then loop back to this gate.
-- **`pause` / `hold` / `stop`**: stop here. The brief is on disk; the user can resume with `/ritual resume`.
+- **`pause` / `hold` / `stop`**: stop here. The brief is on disk; the user can resume with `/ritual-resume`.
 
 #### Step B4 — Run the implementation phase
 

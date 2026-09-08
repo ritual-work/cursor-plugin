@@ -1,4 +1,4 @@
-## /ritual status
+## /ritual-status
 
 Thin in-chat mirror of the terminal CLI command `ritual status [--watch]` (CLI 0.7.14+).
 
@@ -10,7 +10,7 @@ Same content, two surfaces. Pick whichever fits the user's flow.
 
 | Context | Use |
 |---|---|
-| User is in chat with you and types `/ritual status` | This SKILL subcommand. |
+| User is in chat with you and types `/ritual-status` | This SKILL subcommand. |
 | User is mid-run and walks away | Tell them about `ritual status --watch` in a separate terminal. Their session can close; the CLI keeps tailing. |
 | User wants to script status / pipe to other tools | Terminal CLI. The SKILL is render-only; the CLI prints to stdout with proper exit codes. |
 | User asks "what's happening?" without typing the slash | Plain English answer — call `get_agentic_run` and respond naturally. Don't gratuitously invoke this subcommand. |
@@ -21,16 +21,16 @@ Same content, two surfaces. Pick whichever fits the user's flow.
 
 The subcommand can be invoked three ways:
 
-1. **`/ritual status`** (no arg) — auto-resolve the current run from workspace context:
+1. **`/ritual-status`** (no arg) — auto-resolve the current run from workspace context:
  - If `.ritual/config.json` is bound (the repository is already bound to a workspace), load `workspaceId` from there.
  - Call `list_explorations(workspace_id)`, sort by `updatedAt` desc.
  - For each of the top 5 most-recently-updated, call `list_agentic_runs(exploration_id, status='RUNNING', limit=1)` until one returns a run.
  - If none has a RUNNING run, fall back to the most-recently-updated exploration with step != `COMPLETED`.
  - If no workspace is bound to the project, ask the user for an exploration ID or use the connected MCP to select their workspace.
 
-2. **`/ritual status <exploration-id>`** — skip auto-resolve, fetch that exploration directly.
+2. **`/ritual-status <exploration-id>`** — skip auto-resolve, fetch that exploration directly.
 
-3. **`/ritual status --runs`** — list every RUNNING agentic run across the workspace (multi-run case). Render as a numbered picker.
+3. **`/ritual-status --runs`** — list every RUNNING agentic run across the workspace (multi-run case). Render as a numbered picker.
 
 #### Step S2 — Fetch state
 
@@ -66,14 +66,14 @@ Rendering rules:
  - `recommendations` → `Build brief (after admin review)`
  - `complete` / `failed` → `—`
  - any unknown → omit the line entirely
-- **No run, but progress data exists** (run completed or never started): render `Run (no active run)` + phase + Activity. Useful when the user types `/ritual status` after a run finished.
+- **No run, but progress data exists** (run completed or never started): render `Run (no active run)` + phase + Activity. Useful when the user types `/ritual-status` after a run finished.
 - **No run, no progress**: render `Run (no run started yet)` + Step + Activity.
 
 #### Step S4 — Wrap up
 
 After rendering, the agent's job is done. Do NOT auto-poll, do NOT enter a watch loop inside the chat. The CLI's `--watch` is the live-tail surface; this SKILL is a snapshot.
 
-If the user wants to check again, they type `/ritual status` again. The agent re-runs S1–S3 from scratch.
+If the user wants to check again, they type `/ritual-status` again. The agent re-runs S1–S3 from scratch.
 
 ### Tools used
 
@@ -84,11 +84,11 @@ Read-tier subset of the build-flow tools:
 3. `get_exploration` (S2 — name + step + progress)
 4. `get_agentic_run` (S2 — merged live view)
 
-No new MCP tools required. `/ritual status` is a thin orchestration over what already exists.
+No new MCP tools required. `/ritual-status` is a thin orchestration over what already exists.
 
 ### Anti-patterns
 
 - **Don't introduce a "watch" mode inside this SKILL.** The terminal CLI's `--watch` is the live-tail surface. Re-implementing it in chat doubles the affordance and creates polling loops that survive past the user's intent.
 - **Don't render raw `agentic_jobs` fields.** `AgenticJob.totalQuestions` and `progress.steps[*].status` are not written for `full_exploration_v1` runs. Reading them directly produces an "all-pending" snapshot lie. The merged view returned by `get_agentic_run` is the only correct source.
 - **Don't synthesize ETA from `progress.percent` alone.** Use the question-count math (`completedQuestions / elapsed × remaining`) because it's more accurate than the coarse percent rounded up at major step boundaries.
-- **Don't gratuitously invoke this subcommand.** If the user asks "what's happening?" without typing `/ritual status`, just answer in plain English using `get_agentic_run`. The slash-command is for explicit status snapshots, not for every progress question.
+- **Don't gratuitously invoke this subcommand.** If the user asks "what's happening?" without typing `/ritual-status`, just answer in plain English using `get_agentic_run`. The slash-command is for explicit status snapshots, not for every progress question.
