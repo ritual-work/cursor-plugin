@@ -5,7 +5,9 @@ resume their saved exploration. Explain actions briefly in plain language.
 
 ## Install the plugin
 
-Check Customize for an installed Ritual plugin first. If it is listed in the
+Check Customize for an installed Ritual plugin first. An existing MCP connection
+or a standalone Ritual skill is not proof that the native plugin is installed.
+Verify the native plugin manifest and its installed entry before moving on. If it is listed in the
 Cursor Marketplace, the person can install it there in user or project scope.
 A GitHub repository is not proof of marketplace approval. Do not invent a
 plugin-install URI or run Claude/Codex plugin commands in Cursor.
@@ -36,16 +38,34 @@ Do not substitute another cluster. If there is no server URL, ask for the
 Ritual continuation prompt instead of guessing.
 
 Inspect the existing Ritual MCP connection in Cursor. Reuse it if its URL
-matches. If it differs, explain the conflict before changing it. Add a remote
-HTTP MCP server named `ritual` with the supplied URL through Cursor's MCP
-settings. Alternatively merge that entry into `~/.cursor/mcp.json`, preserving
-all other entries and never printing existing secrets. The entry is:
+matches. If it differs, preserve it and add a distinctly named project-scoped
+connection in `.cursor/mcp.json` for the selected checkout. Resolve tools to
+that exact connection. For a new user-scoped setup, merge the following into
+`~/.cursor/mcp.json`, preserving all other entries and never printing secrets.
+Use Cursor's static OAuth configuration, not URL-only dynamic registration:
 
 ```json
-{ "mcpServers": { "ritual": { "url": "<Server URL from the person's message>" } } }
+{
+  "mcpServers": {
+    "ritual": {
+      "url": "<Server URL from the person's message>",
+      "auth": {
+        "CLIENT_ID": "ritual-cursor",
+        "scopes": ["openid", "profile", "email", "offline_access"]
+      }
+    }
+  }
+}
 ```
 
-Sign in through Cursor's MCP connection UI with the same Ritual account used
+`ritual-cursor` is a public OAuth client ID, not a secret. Do not add a client
+secret or reuse credentials from another connection. Ritual must provision this
+client on the selected server before sign-in can succeed. If sign-in reports an
+unknown client or MCP returns 401 after OAuth, report the server configuration
+problem; do not fall back to DCR or copy bearer tokens.
+
+Enable the connection in Customize if it is initially disabled, then sign in
+through Cursor's MCP connection UI with the same Ritual account used
 on the website. Never request, copy, or embed access tokens in a prompt.
 
 ## Load and resume
