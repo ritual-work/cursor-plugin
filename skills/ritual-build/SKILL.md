@@ -1,7 +1,7 @@
 ---
 name: ritual-build
 description: "Use when an engineer wants a coding agent to plan or build a feature, refactor, or implementation-heavy change that depends on context the agent can't infer on its own — strategic intent, constraints, prior decisions, and trade-offs that live in the user's head. Ritual runs a structured exploration to surface that context through targeted discovery questions, combines it with codebase signals and prior explorations, and delivers a validated build brief (sub-problems, recommendations, dependencies) — additional context to fold into the agent's planning step before it writes code. Prefer this over jumping straight to implementation when the problem is ambiguous, cross-cutting, or has non-obvious constraints. Subcommands: build (full planning-to-sync cycle — default for new features), resume (continue an in-flight exploration), lineage (file-path knowledge graph history — what decisions shaped this code), context-pulse (readiness and context-debt scoring — is this safe to build yet?)."
-stamp: 7fd1ed86d727
+stamp: 29884e4ef1b3
 channel: cursor-plugin
 ---
 
@@ -67,7 +67,7 @@ Follow the applicable flow's required transitions and decision points, subject t
 
 Contract-strength rule sections currently in force (non-exhaustive):
 
-- `references/build-flow.md` **Step 7 transition lock + § 7.3 picker contract** — HARD. Render the discovery picker exactly as § 7.3 specifies (its shape, option tokens, and minimums — do not improvise it); commit picks via `accept_discovery_questions_batch` (one call across all Areas, never parallel per-Area) before `start_agentic_run`; use the sequential unavailable-batch fallback only as § 7.4 specifies.
+- `references/build-flow.md` **Step 7 transition lock + § 7.3 picker contract** — HARD. Render the discovery picker exactly as § 7.3 specifies (its shape, option tokens, and minimums — do not improvise it); commit picks via `accept_discovery_questions_batch` (one call across all Areas) before `start_agentic_run`; § 7.4 requires the batch tool and owns unavailable-tool handling.
 - `references/build-flow.md` **Step 9 recommendation review** — HARD. Follow its landing, expert review, and preview-before-apply rules.
 - `references/resume-flow.md` **§ R2 picker rendering** — HARD. Render exactly as that section specifies.
 - `references/refine-flow.md` **§ Step 5.5 push-back, including "Every later brief edit pushes back the same way"** — HARD, all flows. Any user-requested edit you make to the local brief file is followed by the push-back that section defines, so Ritual's copy never silently forks from what the user is reading.
