@@ -40,7 +40,8 @@ Call `merge_briefs` with the id you were given, BEFORE grounding anything. A dev
 
 Two things in the response change what you do next:
 
-- **`explorationId` may differ from the id you passed.** It is the durable exploration; use it from then on.
+- **`explorationId` may differ from the id you passed.** It is the durable exploration; use it from then on. The response's `slug` names that served exploration in human terms (`slack-dashboard-quiet-harbor`) — prefer it in everything a person reads: your narration, the brief file's attribution header, and its `Source handoff:` line when the ref you resumed with differs from the served exploration. Slugs and UUIDs are interchangeable everywhere a tool takes an exploration id.
+
 - **`groundable`** decides whether you may touch the brief. When it is false, do not ground it and do not save it — `save_reconciled_brief` refuses a target that is not ready, so the work would be lost at save.
 
 | `status` | what it means | what to do |
