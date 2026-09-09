@@ -9,13 +9,7 @@ with a concrete "what changed" block and the agent debrief.
 `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`** — the same per-exploration
 directory every other flow uses (build-flow Step 10c owns the convention, including the
 `.ritual/local/` gitignore rule). The brief already exists: it was generated on the marketing
-site and pulled to disk at `init`. **Legacy inits wrote it to the flat `.ritual/build-brief.md`
-— that path sits OUTSIDE `.ritual/local/` and is therefore NOT gitignored, and it can collide
-across explorations. On first touch after resolving the exploration (Step 1), silently migrate:
-if `.ritual/build-brief.md` exists with real content and the per-exploration file does not,
-move it into the id directory (create it, ensure `.ritual/local/` is gitignored per build-flow
-10c) and say nothing.** From then on every read and write in this flow uses the per-exploration
-path. Refine
+site and pulled to disk at `init`. Refine
 does NOT call `generate_build_brief` and does NOT re-synthesize on the server; it sharpens the
 brief you already have, in place, against real code. It may then sync the grounded result back
 with `save_reconciled_brief` (a save, not a re-synthesis; non-blocking — Step 5.5), but the local
@@ -32,7 +26,7 @@ Refine grounds a brief **you already have**, and the paragraph above says where 
 
 So before anything else:
 
-- **No local brief (nothing under `.ritual/local/build-briefs/` and no legacy `.ritual/build-brief.md`) and no bound workspace?** This is a session that was never established. Do NOT attempt to refine, and do NOT synthesize a brief to have something to grind against. Hand off to `/ritual-resume <exploration_id>` if you were given an id, or `/ritual-resume` if you were not — that flow resolves the workspace, binds the repo, and lands on the right stage, including the stage where the brief is still generating.
+- **No local brief (nothing under `.ritual/local/build-briefs/`) and no bound workspace?** This is a session that was never established. Do NOT attempt to refine, and do NOT synthesize a brief to have something to grind against. Hand off to `/ritual-resume <exploration_id>` if you were given an id, or `/ritual-resume` if you were not — that flow resolves the workspace, binds the repo, and lands on the right stage, including the stage where the brief is still generating.
 - **Brief present?** Continue with Step 1 below; nothing changes.
 
 This guard is the belt to the deep-link prompt's braces: the prompt says `resume`, but an agent that reasons its way to `refine` anyway should land somewhere that works rather than failing on a missing file.
@@ -359,7 +353,7 @@ Never omit the "What changed" block or the agent debrief.
 
 - One user pause maximum (Step 1a, repo disambiguation). All other steps run without stopping.
 - Do NOT run shell commands in the target repo beyond the git probes in Step 1.
-- Do NOT modify any file in the target repo EXCEPT `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` (and the one-time legacy migration above), the brief you ground.
+- Do NOT modify any file in the target repo EXCEPT `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md`, the brief you ground.
 - refine does NOT call `generate_build_brief` and does NOT re-synthesize on the server. The
   brief already exists on disk; refine sharpens it in place. It MAY call `save_reconciled_brief`
   (Step 5.5) to sync the grounded brief back — a save, not a re-synthesis, and non-blocking;

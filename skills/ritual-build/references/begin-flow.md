@@ -38,9 +38,9 @@ When **not** to use:
 
 **Read live state before asserting anything (load-bearing — grounding policy).** A brief satisfies this gate from EITHER source — check both, in this order:
 
-1. **Local brief on disk.** Read `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` (the exploration was resolved in B1, so the id is known). **Legacy migration, one-time and silent:** if that file is absent but the flat `.ritual/build-brief.md` exists with real content (not the `_Build brief not available yet._` placeholder), move it into the per-exploration directory first — create the directory, ensure `.ritual/local/` is gitignored per build-flow Step 10c — then read it from there. The flat path is the legacy location from before per-exploration directories; it is not gitignored and can collide across explorations, so nothing reads or writes it beyond this migration.
+1. **Local brief on disk.** Read `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` (the exploration was resolved in B1, so the id is known).
 
- A real brief at the per-exploration path IS an executable brief — proceed to Step B3. This is the prelogin path: `/ritual-refine` grounded the marketing-site brief on disk WITHOUT calling the core `generate_build_brief`, so there is no server build-brief row, and that is expected. Do not block on the server when a real brief is already on disk.
+   A real brief at the per-exploration path IS an executable brief — proceed to Step B3. This is the prelogin path: `/ritual-refine` grounded the marketing-site brief on disk WITHOUT calling the core `generate_build_brief`, so there is no server build-brief row, and that is expected. Do not block on the server when a real brief is already on disk.
 2. **Server brief.** If there is no usable local brief, call `get_exploration_status`. If it shows an accepted/ready build brief, that satisfies the gate too (the normal `/ritual-build` path) — proceed to Step B3.
 
 `begin` does NOT require a core server build brief; a local `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` stands on its own.

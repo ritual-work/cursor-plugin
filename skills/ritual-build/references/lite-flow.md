@@ -1,5 +1,5 @@
 <!-- GENERATED from references/build-flow.md by the Ritual monorepo internal guard — DO NOT EDIT. -->
-<!-- source-sha: 23fad3b2337591ae -->
+<!-- source-sha: f7c80856f36c186f -->
 
 # /ritual-lite — fast build (generated; do not edit)
 
@@ -1477,8 +1477,7 @@ Accept these replies without advertising additional options:
 ##### 7.4 — Commit picks (ONE batch call across all Areas)
 
 **load-bearing — forbidden behavior:** use one batch call for the whole selection.
-Do not substitute per-Area calls when the batch tool is available. The unavailable-tool
-fallback below is the only exception; never run its per-Area calls in parallel.
+Do not substitute per-Area calls for the batch operation.
 
 Call `accept_discovery_questions_batch` **once** with `state_id`
 only — **OMIT `picks`.** The server commits the selection it already holds:
@@ -1501,9 +1500,9 @@ panel surface the user may have grown or shrunk the selection after your
 render; when the counts differ, the response is right and your context is
 stale — say so plainly if asked, without exposing the machinery.
 
-Use the single-Area `accept_discovery_questions` ONLY as a fallback when the
-batch tool is unavailable — and then **sequentially** (`await` each in turn),
-never in parallel.
+If `accept_discovery_questions_batch` is unavailable, stop before committing picks
+and follow SKILL.md’s connection recovery guidance. Continue only when the batch
+tool is callable; do not reconstruct the server-held selection with per-Area calls.
 
 User-facing: emit NOTHING for the commit — not per Area, and not once for the
 whole batch. The pick is the user's decision and it is already on screen; a line
