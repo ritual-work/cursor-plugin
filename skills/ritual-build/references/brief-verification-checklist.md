@@ -4,7 +4,7 @@ Reference for `/ritual-build` Step 10b.5 (the auto-fire verify-brief pass that r
 
 The brief generator runs server-side and **does not have repo access**. It writes assertions about cited files / functions / classes based on the agent's earlier recon summary — which is a text summary, not the actual code. When the brief says *"`is_allowed_to_see` is insufficient — needs token-based access"* but the code actually ships email-allowlist semantics, the contradiction is invisible to the brief generator and to the user reading the brief.
 
-Step 10b.5 closes this gap: **the agent (with repo access) reads the bodies of the specific symbols the brief cites and produces a structured list of findings before the user sees the brief.** Write findings to `BUILD-BRIEF-VERIFICATION.md` and sync them with `sync_brief_review`. Follow build-flow Step 10b.5 to enrich the current brief deterministically when findings require reconciliation, preserving the original prose and version history.
+Step 10b.5 closes this gap: **the agent (with repo access) reads the bodies of the specific symbols the brief cites and produces a structured list of findings before the user sees the brief.** Follow `build-flow.md` Step 10b.5 for persistence, reconciliation, and citation-free handling.
 
 This is the **non-UI sibling of `references/ui-ux-checklist.md`** (Step 10.5 UX review). Same methodology shape (read brief → identify citations → find in repo → compare → fill schema → surface findings), different targets (functions / data shapes / model fields instead of UI components).
 
@@ -183,7 +183,7 @@ checked out, state that clearly.}
 
 - **Verify everything in the brief.** Only the symbol-citation slice. Pose-level claims, framing, and general direction are out of scope.
 - **Read the full file.** Read enough surrounding context to verify the symbol (~10 lines); not the whole file. Capped at ~15 citations total to keep this fast.
-- **Re-synthesize the brief during verification.** Preserve the original prose. Reconcile findings using the deterministic enrichment and save sequence in build-flow Step 10b.5; regenerate only when source recommendations or requirements change.
+- **Re-synthesize the brief during verification.** The permitted reconciliation procedure lives in `build-flow.md` Step 10b.5.
 - **Persist per-finding rows to the knowledge graph.** The review as a whole syncs via `sync_brief_review`; per-finding inheritance (future briefs on overlapping files automatically inheriting verified facts) is not yet available.
 
 ---

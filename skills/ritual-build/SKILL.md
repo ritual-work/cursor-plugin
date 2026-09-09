@@ -1,7 +1,7 @@
 ---
 name: ritual-build
 description: "Use when an engineer wants a coding agent to plan or build a feature, refactor, or implementation-heavy change that depends on context the agent can't infer on its own — strategic intent, constraints, prior decisions, and trade-offs that live in the user's head. Ritual runs a structured exploration to surface that context through targeted discovery questions, combines it with codebase signals and prior explorations, and delivers a validated build brief (sub-problems, recommendations, dependencies) — additional context to fold into the agent's planning step before it writes code. Prefer this over jumping straight to implementation when the problem is ambiguous, cross-cutting, or has non-obvious constraints. Subcommands: build (full planning-to-sync cycle — default for new features), resume (continue an in-flight exploration), lineage (file-path knowledge graph history — what decisions shaped this code), context-pulse (readiness and context-debt scoring — is this safe to build yet?)."
-stamp: 790e5228889b
+stamp: 7fd1ed86d727
 channel: cursor-plugin
 ---
 
@@ -53,21 +53,21 @@ continue with the current flow — the server picks the right update command for
 installed, so never substitute your own. No stamp, or `in-sync`/`unknown` → say nothing. Never
 block on this.
 
-**Ritual tools not callable (load-bearing).** If Ritual tools are unavailable, check the host's connection status before diagnosing the cause. Say "Ritual's tools are unavailable in this session." If authentication is required, use the host's supported authentication flow. If the connection is missing, disabled, or unreachable, report that condition and follow the host's setup or connection guidance. If the cause cannot be determined, say so. Do not ask the user to resend their request or prescribe reinstalling without evidence. Resume the requested flow when tools are callable; do not fabricate results or repeatedly retry an unavailable connection.
+**Ritual tools not callable (load-bearing).** If Ritual tools are unavailable, check the host's connection status before diagnosing the cause. Say "Ritual's tools are unavailable in this session." If authentication is required, use the host's supported authentication flow. If the connection is missing, disabled, or unreachable, report that condition and follow the host's setup or connection guidance. If the cause cannot be determined, say so. If you cannot inspect connection status directly, have the user open the host's MCP connection settings (in Claude Code, `/mcp`) and report the status for Ritual. Follow the authentication action offered there if authentication is required. For a configured Codex CLI connection named `ritual` that requires login, use `codex mcp login ritual --oauth-client-registration cimd --scopes openid,profile,email,offline_access`. Do not ask the user to resend their request or prescribe reinstalling without evidence. Resume the requested flow when tools are callable; do not fabricate results or repeatedly retry an unavailable connection.
 
-## Contract strength## Contract strength — load-bearing for all subcommands
+## Contract strength — load-bearing for all subcommands
 
 Every section in this SKILL or its reference files labeled **load-bearing**, **forbidden behavior**, **anti-pattern**, **rendering contract**, or **fire-on-trigger** is **contract-strength**, not guidance.
 
-Follow the applicable flow's required transitions and decision points, subject to host instructions and the user's authorization. Preview-before-apply and explicit decision gates remain required. Prefer the designated authoritative reference over duplicated examples. If a material ambiguity remains, explain its effect and ask only for the decision needed to proceed.
+Follow the applicable flow's required transitions and decision points, subject to higher-priority host instructions and the user's authorization. Do not skip, combine, or reorder required steps for convenience, speed, or because the answer appears obvious. Preview-before-apply and explicit decision gates remain required. The designated authoritative reference takes precedence over duplicated examples or summaries. If applicable skill instructions conflict and their precedence does not resolve the conflict, stop before the affected action, explain the conflict, and ask for the decision needed to proceed.
 
 **Control language is internal (load-bearing).** Use product vocabulary in normal output. Explain pauses in terms of the user's decision and what follows it. Report connection failures when they block the task. When explaining a real constraint or answering a direct question, identify the relevant instruction plainly.
 
-**One gate per turn (load-bearing).** Render one applicable decision gate, end the turn, and wait for the user's reply before continuing. Apply the selected flow's explicit autonomous-mode overrides. Read the referenced section before executing each step; it owns the rendering and options.
+**One gate per turn (load-bearing).** Render one applicable decision gate, end the turn, and wait for the user's reply before continuing. Do not batch gates into one response, pre-answer later gates, or continue through a gate because all inputs are already known. Read the referenced section before executing each step; it owns the rendering and options. For Lite only, `references/lite-flow.md` § Global lite rules and § The only human touchpoints in lite define which gates auto-resolve. Its § Autonomous worktree mode additionally replaces entry and those two touchpoints when `--worktree` is present. These specific exceptions do not authorize skipping gates in other modes.
 
-Contract-strength rule sectionsContract-strength rule sections currently in force (non-exhaustive):
+Contract-strength rule sections currently in force (non-exhaustive):
 
-- `references/build-flow.md` **Step 7 transition lock + § 7.3 picker contract** — HARD. Render the discovery picker exactly as § 7.3 specifies (its shape, option tokens, and minimums — do not improvise it); commit picks via `accept_discovery_questions_batch` (one call across all Areas, never parallel per-Area) before `start_agentic_run`.
+- `references/build-flow.md` **Step 7 transition lock + § 7.3 picker contract** — HARD. Render the discovery picker exactly as § 7.3 specifies (its shape, option tokens, and minimums — do not improvise it); commit picks via `accept_discovery_questions_batch` (one call across all Areas, never parallel per-Area) before `start_agentic_run`; use the sequential unavailable-batch fallback only as § 7.4 specifies.
 - `references/build-flow.md` **Step 9 recommendation review** — HARD. Follow its landing, expert review, and preview-before-apply rules.
 - `references/resume-flow.md` **§ R2 picker rendering** — HARD. Render exactly as that section specifies.
 - `references/refine-flow.md` **§ Step 5.5 push-back, including "Every later brief edit pushes back the same way"** — HARD, all flows. Any user-requested edit you make to the local brief file is followed by the push-back that section defines, so Ritual's copy never silently forks from what the user is reading.
@@ -100,7 +100,7 @@ Use the routing table above as the route map. If the first token matches a row, 
 
 - `references/scoring-fallback.md` — only if `score_context_pulse` is unavailable or errors.
 
-## Asks that don't map## Asks that don't map to a subcommand
+## Asks that don't map to a subcommand
 
 When the user says things like *"what's the status of exp-X?"*, *"show me the recs on exp-Y"*, or *"kick off the agentic run on exp-Z"* — those don't need a dedicated command. Just call the MCP tool directly:
 

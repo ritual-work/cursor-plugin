@@ -1,5 +1,5 @@
 <!-- GENERATED from references/build-flow.md by the Ritual monorepo internal guard — DO NOT EDIT. -->
-<!-- source-sha: 578c8d033d3727ac -->
+<!-- source-sha: 23fad3b2337591ae -->
 
 # /ritual-lite — fast build (generated; do not edit)
 
@@ -10,6 +10,12 @@ It is **not** lighter in provenance, staged records, constraints, lineage,
 auditability, or knowledge graph sync — only in interaction cost.
 
 Follow build-flow.md's steps below EXACTLY, with these **LITE OVERRIDES**:
+
+## Entry dispatch
+Before the front gate or any entry tool call, check for `--worktree`. If present,
+use § Autonomous worktree mode: classify directly (or resume the supplied exploration),
+skip touchpoint 1, and for a new run create exactly one exploration at Step 6. Otherwise use the
+standard front gate below with `prepare_build` and retain its draft ID.
 
 ## Global lite rules
 - **Auto-pick the recommended/default option at every gate without pausing** —
@@ -36,7 +42,7 @@ Follow build-flow.md's steps below EXACTLY, with these **LITE OVERRIDES**:
    This Lite confirmation applies even to a confident classification; it overrides
    the conditional build confirmation below. If `clarifyingQuestion` is present,
    include it verbatim. The server resolves persona coverage.
-2. **Recommendation review2. **Recommendation review (Step 9) — "proceed or expert" (NON-BLOCKING).** The
+2. **Recommendation review (Step 9) — "proceed or expert" (NON-BLOCKING).** The
    compact landing (`We've generated {N} recs across {K} categories` + one line of
    titles per category) offers `proceed` or `expert`; inside `expert`, `edit R{N}`
    (suggest-edit → preview → accept persists) is available. **No reject CTA.**
@@ -54,10 +60,9 @@ for background discovery (unchosen-options → discovery worktrees). When you se
 `--worktree`, apply these EXTRA rules on top of the lite overrides above:
 - **There is no human, so auto-resolve EVEN the two touchpoints.** Accept the
   classified job (Step 0.7) and the recommendations (Step 9) without waiting —
-  take the default at every gate, including those two. (If the job comes back
-  generic, proceed as the generic `Feature Brief` build; there's no one to
-  clarify with.)
-- **Worktree entry overrides the draft entry below.** Do NOT call `prepare_build`
+  take the default at every gate, including those two. (If classification is generic or low-confidence, record the uncertainty and
+  provisional scope assumptions in the brief; proceed without a human wait.)
+- **Worktree entry overrides the standard front gate above and inherited build entry and Step 6 below.** Do NOT call `prepare_build`
   or `lock_exploration_scope` in this mode. Classify with `classify_request`;
   use the bound workspace, or list workspaces and proceed only when exactly one
   is available. If there is no unambiguous workspace, stop with an actionable
@@ -561,7 +566,7 @@ For `pulse <ask>`, route to `/ritual-context-pulse <ask>` — an optional side p
 
 The server resolves the deliverable template. Use the returned deliverable label; do not ask for a separate persona or template selection. Continue to Step 3. Request corrections follow the Scope gate's correction path.
 
-#### Step 3#### Step 3 — Code reconnaissance moved (no step here)
+#### Step 3 — Code reconnaissance moved (no step here)
 
 > **Recon does not run before sub-problem generation (context-at-create).** It runs
 > AFTER the user locks the problem frame, as **Step 5.7**, so the first
@@ -1471,9 +1476,9 @@ Accept these replies without advertising additional options:
 
 ##### 7.4 — Commit picks (ONE batch call across all Areas)
 
-**load-bearing — forbidden behavior:** do NOT fan out one
-`accept_discovery_questions` call per Area in parallel. Each per-Area call
-must complete before the next single-Area call. Prefer the batch endpoint for the whole selection.
+**load-bearing — forbidden behavior:** use one batch call for the whole selection.
+Do not substitute per-Area calls when the batch tool is available. The unavailable-tool
+fallback below is the only exception; never run its per-Area calls in parallel.
 
 Call `accept_discovery_questions_batch` **once** with `state_id`
 only — **OMIT `picks`.** The server commits the selection it already holds:
@@ -2018,8 +2023,6 @@ Continue to Step 9.5 (`Wait for requirements`).
 
 Steps:
 
-If the brief makes no code citations, skip verification persistence and continue to Step 10c with verification marked not applicable.
-
 1. **Tell the user once** that requirements are being generated:
 
    > Generating requirements for the build brief…
@@ -2356,7 +2359,7 @@ If the brief makes no code citations, skip verification persistence and continue
 - ❌ Skipping Step 10b.5 because "the brief looks fine." Brief-quality is invisible from reading the brief alone — the verification compares against the code.
 - ❌ Treating the brief's hedge ("*may deviate if codebase has a stronger pattern*") as license to skip. The hedge means *"go verify"* — exactly what this step does.
 - ❌ Padding the `verified` list. Only enumerate citations the brief actually made.
-- ❌ Re-writing the brief at Step 10b.5. The verification produces findings; the brief stays as-is. Plan mode reconciles via knowledge graph priorContext.
+- ❌ Re-synthesizing the brief during verification. Preserve original prose and attach findings as Step 7 above specifies.
 - ❌ Skipping the `sync_brief_review` call. The local `BUILD-BRIEF-VERIFICATION.md` alone benefits this session only; the knowledge graph sync is what lets future briefs on overlapping files inherit the verified facts.
 
 ##### 10c — Write to `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` + CLI summary
@@ -2456,7 +2459,7 @@ Branch by user response. The CTA on screen is `proceed`, but accept these as syn
 
 **No `refine` action at Step 10d.** Verification reconciliation is completed in Step 10b.5. If the user changes the underlying recommendations or requirements, regenerate with `generate_build_brief` and `force: true`; this is distinct from saving verification findings.
 
-**Pulse (Step 10 done):**Pulse (Step 10 done):** Emit a pulse — this often crosses into **Implementation-ready** (90%+). Render full when that crossing happens. Use the build-brief celebration line: `✓ Build brief ready — discovery has become an implementation path.` If still below 90% (e.g. brief flagged residual debt), surface that in the pulse line itself and propose addressing it before coding.
+**Pulse (Step 10 done):** Emit a pulse — this often crosses into **Implementation-ready** (90%+). Render full when that crossing happens. Use the build-brief celebration line: `✓ Build brief ready — discovery has become an implementation path.` If still below 90% (e.g. brief flagged residual debt), surface that in the pulse line itself and propose addressing it before coding.
 
 #### Step 11 — Implement
 
@@ -2787,10 +2790,12 @@ Reply `next` to plan slice {n+1}, or `pause` to stop.
 
 [USER PAUSE] Branch on response:
 
-- **`next`**: set the next slice as the current slice and re-enter **11.0** (branch) → **11.0.5** (plan-mode handoff) → 11.1 for it. The per-slice plan-mode gate fires again — a fresh plan, scoped to this slice, before any edit. Do NOT carry the prior slice's plan forward.
+- **`next`**: set the next slice as the current slice. Within the same PR group, keep the current branch and re-enter **11.0.5** (plan-mode handoff) → 11.1. At a new PR group, enter **11.0** and satisfy its branch and prerequisite checks first. The per-slice plan-mode gate fires again — a fresh plan, scoped to this slice, before any edit. Do NOT carry the prior slice's plan forward.
 - **`pause`**: stop; remaining slices stay on the work-list for a later session (which re-enters at 11.0.0).
 
 **When no slices remain**, confirm each slice has synced, retry only pending syncs through Step 12, then continue to Step 13. Do not duplicate successful commit-level records.
+
+For example, a shared module and its first consumer can form two slices in one PR group: commit and sync the module, plan the consumer on the same branch, then commit and sync it before opening their shared PR.
 
 #### Step 12 — Close the loop with `sync_implementation`
 
@@ -3055,7 +3060,7 @@ Or: re-run `/ritual-build` in this workspace later — the existing-work check w
 
 Use the tools named in the executable steps above. `check_anti_goals` validates a proposal against the current anti-goals in one call; `audit_recommendations` starts an audit with a reviewable repair loop.
 
-### After this subcommand### After this subcommand
+### After this subcommand
 
 When `/ritual-build` completes, the exploration is in COMPLETE state with accepted recommendations AND a build brief has been generated AND (if the agent implemented in-chat) `sync_implementation` has been called. The workflow includes implementation and synchronization.
 

@@ -9,7 +9,7 @@ referenced contracts over local examples).
 
 Apply the message shapes below during planning. Report outcomes and decisions in product terms.
 
-------
+---
 
 ## Scope — PLANNING turns only (load-bearing)
 
