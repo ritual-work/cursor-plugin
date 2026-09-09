@@ -25,18 +25,18 @@ refuse it tomorrow. So this contract does not name a wait mechanism or a duratio
 **Wrong** — the interval creeps up, and each refusal invites a worse substitute:
 
 ```
-Turn 1: wait, then status → still running
-Turn 2: wait LONGER → still running ← escalating
-Turn 3: wait LONGER STILL → refused by the host
-Turn 4: spin on a sentinel file that never appears ← now it cannot exit at all
+Turn 1:  wait, then status  → still running
+Turn 2:  wait LONGER        → still running        ← escalating
+Turn 3:  wait LONGER STILL  → refused by the host
+Turn 4:  spin on a sentinel file that never appears ← now it cannot exit at all
 ```
 
 **Right** — constant cadence; the loop ends when status says so:
 
 ```
-Turn 1: status → still running
-Turn 2: status → still running
-Turn N: status → terminal state → exit loop
+Turn 1:  status  → still running
+Turn 2:  status  → still running
+Turn N:  status  → terminal state → exit loop
 ```
 
 User-facing: while a step runs you may render `Still generating…` verbatim. Everything else the

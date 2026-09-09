@@ -57,9 +57,9 @@ No accepted build brief found for this exploration.
 
 `begin` executes an existing accepted brief. To get one:
 
- · /ritual-build — run the full planning cycle (new explorations)
- · /ritual-refine — ground an imported brief and sharpen recommendations
- · /ritual-resume — pick up an in-flight planning session
+  · /ritual-build  — run the full planning cycle (new explorations)
+  · /ritual-refine — ground an imported brief and sharpen recommendations
+  · /ritual-resume — pick up an in-flight planning session
 
 ```
 
@@ -80,9 +80,9 @@ Build brief ready — executing from accepted brief.
 `.ritual/local/build-briefs/{exploration_id}/BUILD-BRIEF.md` is on disk (or synced from the server). Skim the RBs
 + anchors, then decide:
 
- · `go` — ready to implement; move to coding
- · `drill {N}` — drill into RB-{N} before deciding
- · `pause` — stop here; resume with /ritual-resume
+  · `go` — ready to implement; move to coding
+  · `drill {N}` — drill into RB-{N} before deciding
+  · `pause` — stop here; resume with /ritual-resume
 
 ```
 
@@ -117,10 +117,10 @@ Instead, degrade gracefully — the PR is prepared LOCALLY and the user gets one
 render with the finish-it-later path:
 
 1. Write `.ritual/pr-draft.md`: line 1 = the PR title (conventional-commit style),
- blank line, then the body (summary of what landed, RB checklist, deferrals, brief
- reference). This is the artifact `gh pr create` consumes later.
+   blank line, then the body (summary of what landed, RB checklist, deferrals, brief
+   reference). This is the artifact `gh pr create` consumes later.
 2. Run `sync_implementation` as normal (Step B5), registering a `[major]` deferral:
- "draft PR pending GitHub auth".
+   "draft PR pending GitHub auth".
 3. Emit the no-credentials render ONCE:
 
 > {build rail}
@@ -133,7 +133,7 @@ render with the finish-it-later path:
 > To open it once you're authenticated (`gh auth login` or set `GH_TOKEN`):
 > ```
 > git push -u origin {branch}
-> gh pr create --draft --base {base} --head {branch} --title "{title}" --body-file.ritual/pr-draft.md
+> gh pr create --draft --base {base} --head {branch} --title "{title}" --body-file .ritual/pr-draft.md
 > ```
 >
 > Reply `retry` after authenticating (I'll push, open the draft PR, and re-sync so the
@@ -150,8 +150,8 @@ When Step 11 completes (all slices implemented and PRs opened), call `sync_imple
 
 ```
 sync_implementation({
- exploration_id: <resolved exploration id>,
- // remaining params per the MCP tool contract
+  exploration_id: <resolved exploration id>,
+  // remaining params per the MCP tool contract
 })
 ```
 

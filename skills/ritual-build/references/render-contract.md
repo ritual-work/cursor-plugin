@@ -7,13 +7,7 @@ summarize it and link here; they do not own it. When a rule here and an example
 elsewhere conflict, **this file wins** (same precedence the skill already gives
 referenced contracts over local examples).
 
-Why this exists (the failure it closes): render leaks — the agent narrating
-process ("let me load the tool schemas"), stop-reasons ("planning paused per the
-run instructions"), tool/field mechanics ("writing the workspace binding"), or
-echoing markdown code fences around a gate. Enumerating banned phrasings is
-whack-a-mole; this contract inverts that into an **allowlist**: only a small,
-closed set of message shapes may render, and anything else is a leak by
-construction.
+Apply the message shapes below during planning. Report outcomes and decisions in product terms.
 
 ---
 
@@ -49,7 +43,7 @@ else may render.
 A decision gate. Its shape is fixed:
 
 - **rail** — the message OPENS with the build rail (the `Ritual build` header /
- `▶/✓` stage line). No prose may precede the rail.
+  `▶/✓` stage line). No prose may precede the rail.
 - **body** — the gate's prescribed copy (the gate template from `build-flow.md`).
 - **cta** — exactly one `Reply …` / `Next: …` line.
 
@@ -84,26 +78,26 @@ The allowlist above is the rule; these are the recurring leak shapes it forbids,
 called out because they're the ones agents reach for:
 
 - **Render/action pre-announcements** — "Now I'll render the gate", "Rendering the
- Scope gate", "{Problem frame} generated. Rendering …".
+  Scope gate", "{Problem frame} generated. Rendering …".
 - **Step-outcome / lifecycle narration** — "Scope locked.", "problem frame locked.",
- bare section labels like "Sub-problems for the scope.", or a post-accept count
- like "12 questions saved across 8 areas." / "N questions picked." (the gate's
- rail + body IS the only output; the locking/saving/generating step emits nothing
- beyond an allowlisted status line — after `accept_discovery_questions_batch` go
- straight to the hand-off render, never a "saved/picked" outcome line).
+  bare section labels like "Sub-problems for the scope.", or a post-accept count
+  like "12 questions saved across 8 areas." / "N questions picked." (the gate's
+  rail + body IS the only output; the locking/saving/generating step emits nothing
+  beyond an allowlisted status line — after `accept_discovery_questions_batch` go
+  straight to the hand-off render, never a "saved/picked" outcome line).
 - **Machinery narration** — "I'll read the reference files…", "Classifying the
- job…", "Polling / Fetching / Computing / Committing / Submitting / Triggering …",
- "let me load the tool schemas", "continue reading the build flow".
+  job…", "Polling / Fetching / Computing / Committing / Submitting / Triggering …",
+  "let me load the tool schemas", "continue reading the build flow".
 - **The word `silently` / `silent`** — must NEVER appear in a user-visible line.
 - **Stop-reason narration** — "Planning paused here per the run instructions; no
- answers generated…" and any explanation of why the turn is ending.
+  answers generated…" and any explanation of why the turn is ending.
 - **Transition narration after a reply** — "Workspace selected. Now checking…",
- "Moving to scope", "Job confirmed. Now…". After any reply the next visible
- message is exactly one of: the next gate, one approved status line, or nothing.
+  "Moving to scope", "Job confirmed. Now…". After any reply the next visible
+  message is exactly one of: the next gate, one approved status line, or nothing.
 - **Internals** — tool / schema / field / phase names (`prepare_build`, `binding`,
- `jaccard`, `workItemLabel`), Step N labels.
+  `jaccard`, `workItemLabel`), Step N labels.
 - **Markdown code-fence delimiters as content** — do not wrap a gate in a ```` ```text ````
- fence; render the gate content directly.
+  fence; render the gate content directly.
 
 ### The one rule behind all of these (load-bearing)
 
@@ -140,9 +134,9 @@ anyway — four times, by four routes, a ban losing to a narrate-plainly
 instruction from outside this skill. Real leaks, verbatim, all forbidden:
 
 - "The resume command routes through Ritual's main build workflow, so I'm
- loading that workflow before continuing."
+  loading that workflow before continuing."
 - "Ritual requires its output, polling, and change-safety rules to be loaded
- before resuming. I'm applying those now."
+  before resuming. I'm applying those now."
 
 ### Tool-result vocabulary is internal too (load-bearing)
 
@@ -180,19 +174,19 @@ forget: the message stays clean while the label right above it reads
 this contract exists to hide.
 
 - **Never put internal skill vocabulary in a tool-call label**: no `Step N` /
- `10c` / `§ 7.3`, no reference-file names (`build-flow.md`,
- `render-contract.md`), no MCP tool names (`prepare_build`), no
- `gate` / `render` / `contract` / `allowlist` machinery words.
+  `10c` / `§ 7.3`, no reference-file names (`build-flow.md`,
+  `render-contract.md`), no MCP tool names (`prepare_build`), no
+  `gate` / `render` / `contract` / `allowlist` machinery words.
 - **Describe the WORK in the user's terms**, not the skill's plumbing:
- ✅ `Check the local database` · `Look up the user's exploration` ·
- `Run the API tests`
- ❌ `Read Step 10c gate copy` · `Load build-flow.md § 9.1` ·
- `Call prepare_build for the scope-entry gate`
+  ✅ `Check the local database` · `Look up the user's exploration` ·
+  `Run the API tests`
+  ❌ `Read Step 10c gate copy` · `Load build-flow.md § 9.1` ·
+  `Call prepare_build for the scope-entry gate`
 - When a call has no honest user-facing purpose (you are reading the skill's own
- instructions), the label still must not name them — say what it is FOR:
- ✅ `Prepare the next step` — never `Read Step 11 instructions`.
+  instructions), the label still must not name them — say what it is FOR:
+  ✅ `Prepare the next step` — never `Read Step 11 instructions`.
 - This applies in the **implementation phase too**, where the message rules
- relax but internal-token leaks stay forbidden.
+  relax but internal-token leaks stay forbidden.
 
 ### Render-allowlist precedence (load-bearing)
 
@@ -218,20 +212,20 @@ terms. Free-form progress ("Created the branch", "Opened draft PR #N") is allowe
 ## Enforcement layers
 
 1. **Static** — the skill copy itself is linted before it ships, so the authored
- templates never contain a leak and the inline summaries stay in sync with this
- file.
+   templates never contain a leak and the inline summaries stay in sync with this
+   file.
 2. **Dynamic — the FLOOR (agent execution, host-agnostic)** — the compose-then-check
- pre-emit guard in `build-flow.md` voice rule #8.1: the agent assembles the full
- message, validates every line against this contract before the first token, and
- fails closed (rewrite/drop → rail+CTA fallback), never self-correcting
- mid-stream. Works on every host.
+   pre-emit guard in `build-flow.md` voice rule #8.1: the agent assembles the full
+   message, validates every line against this contract before the first token, and
+   fails closed (rewrite/drop → rail+CTA fallback), never self-correcting
+   mid-stream. Works on every host.
 3. **Deterministic — the CEILING (`render_gate`, where available)** — the
- `render_gate` MCP tool returns the EXACT canonical bytes for the
- five high-leak planning gates; the agent relays them verbatim (`build-flow.md`
- rule #8.2). Where a host can afford the MCP round-trip this removes the agent's
- discretion entirely — there's nothing to self-check. Capability = "is the tool
- in my list?"; absent or erroring → the floor (layer 2). The two paths produce
- identical bytes (the skill-side fallback copy mirrors the same server templates).
+   `render_gate` MCP tool returns the EXACT canonical bytes for the
+   five high-leak planning gates; the agent relays them verbatim (`build-flow.md`
+   rule #8.2). Where a host can afford the MCP round-trip this removes the agent's
+   discretion entirely — there's nothing to self-check. Capability = "is the tool
+   in my list?"; absent or erroring → the floor (layer 2). The two paths produce
+   identical bytes (the skill-side fallback copy mirrors the same server templates).
 4. **Regression net** — every visible line of every build transcript is scored
- against this exact gate/status/nothing allowlist. It is the permanent proof
- that the contract holds, not a temporary crutch.
+   against this exact gate/status/nothing allowlist. It is the permanent proof
+   that the contract holds, not a temporary crutch.

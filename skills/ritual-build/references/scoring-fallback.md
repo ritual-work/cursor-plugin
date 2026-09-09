@@ -4,18 +4,18 @@ Loaded only if `score_context_pulse` is unavailable, errors, or the MCP server i
 
 #### Step CP3 — Compute the dimensions (fallback only)
 
-Skip this step when the preferred path (CP2 — `score_context_pulse`) succeeded — the server returns identical dimension scores. This is the specification for the **fallback path** and the canonical reference for what the server-side scoring engine computes.
+Skip this step when the preferred path (CP2 — `score_context_pulse`) succeeded — the server returns identical dimension scores. Use the **v2** model below for new fallback pulses. The v1 section documents how to read historical pulses; it does not define current scoring.
 
 Use this deterministic table. Each dimension scores 0–100; final score is the weighted sum.
 
 **Scoring model versions:**
 
-- **v1 (legacy)** — 4 dimensions: Feature Clarity 30%, Decision Resolution 30%, Repo Grounding 25%, Assumption Safety 15%.
-- **v2 (current canonical)** — 6 dimensions, repo split + assumption reframe + validation readiness added. Weights below.
+- **v1 (historical pulse compatibility)** — 4 dimensions: Feature Clarity 30%, Decision Resolution 30%, Repo Grounding 25%, Assumption Safety 15%.
+- **v2 (current)** — 6 dimensions, repo split + assumption reframe + validation readiness added. Weights below.
 
 The server returns `dimensionsVersion` on every pulse so callers know which shape they're reading. Old pulses retain their original version; new pulses use the current canonical model.
 
-##### Feature Clarity — 25% (kept across versions)
+##### Feature Clarity — 25%
 
 | Signal (parse the exploration's `problemStatement`) | Points |
 |---|---:|
@@ -27,18 +27,18 @@ The server returns `dimensionsVersion` on every pulse so callers know which shap
 | Edge cases are mentioned | 10 |
 | Success metric is mentioned (numbers, time bounds, error rates) | 5 |
 
-##### Decision Resolution — 20% (kept across versions; weight reduced from 30%)
+##### Decision Resolution — 20%
 
 ```
 score = (accepted_recs / total_recs) × 60
- + (picked_questions / (picked_questions + unreviewed_questions)) × 40
+      + (picked_questions / (picked_questions + unreviewed_questions)) × 40
 ```
 
-The discovery component is a picked-vs-unreviewed ratio: a question the user committed via `accept_discovery_questions[_batch]` is `picked` ("in active investigation"); every surfaced question they didn't pick is `unreviewed` (the only state that counts toward unresolved). There is no separate `deferred`/`dropped` classification — the post-pick scope-classification gate that produced those was removed; unpicked questions are simply unreviewed.
+The discovery component is a picked-vs-unreviewed ratio: a question the user committed via `accept_discovery_questions[_batch]` is `picked` ("in active investigation"); every surfaced question they didn't pick is `unreviewed` (the only state that counts toward unresolved). Unpicked questions are unreviewed.
 
 Fallbacks: `total_recs === 0` → use only the discovery component scaled to 100. `total_questions === 0` → use only the rec component scaled to 100. Both zero → score 0.
 
-##### Code Grounding — 15% (v2 — split from Repo Grounding)
+##### Code Grounding — 15%
 
 | Signal | Points |
 |---|---:|
@@ -48,7 +48,7 @@ Fallbacks: `total_recs === 0` → use only the discovery component scaled to 100
 | Decisions logged on overlapping files (knowledge graph `decisions[]` non-empty) | 20 |
 | Deferrals on overlapping files surfaced (knowledge graph `deferrals[]` returned) | 10 |
 
-##### Reference Grounding — 10% (v2 — split from Repo Grounding)
+##### Reference Grounding — 10%
 
 | Signal | Points |
 |---|---:|
@@ -57,7 +57,7 @@ Fallbacks: `total_recs === 0` → use only the discovery component scaled to 100
 
 Lower weight than Code Grounding because a single high-quality PRD gets the user to a meaningful baseline; diminishing returns past 3 since more refs add review surface area without making the feature clearer.
 
-##### Assumption Load — 10% (v2 — reframed from Assumption Safety)
+##### Assumption Load — 10%
 
 **Inverted semantic: HIGH = MORE assumptions (worse).** The readiness composer uses `(100 - load)` internally so the weighted sum stays "high readiness = good." Inversion is intentional — load is what the user can act on (reduce it), whereas "safety" was passive.
 
@@ -70,7 +70,7 @@ User-facing render rule: never show Assumption Load as a positive progress bar w
 | 3+ anti-goals (boundaries are mapped) | 20 base |
 | Each assumption-flag word in the problem statement: `assume`, `assuming`, `presumably`, `probably`, `should be`, `expected to` | +5 each, cap +20 |
 
-##### Validation Readiness — 20% (v2 — NEW)
+##### Validation Readiness — 20%
 
 Testability. Can an engineer reading this know how to verify success? This dimension catches problem statements that sound clear but leave acceptance ambiguous.
 
@@ -82,7 +82,6 @@ Testability. Can an engineer reading this know how to verify success? This dimen
 | Failure / error mode handling (`rollback`, `retry`, `abort`, `failure`, `timeout`, `crash`) | 15 |
 | Edge case enumeration (`edge case`, `never`, `already`, `missing`, `conflict`, `partial`) | 15 |
 
-**Contradiction Risk** is reserved for a future `--explain` flag — it requires an LLM call in the hot path, which is intentionally outside the deterministic guarantee of CP3.
 
 #### Step CP4 — Compose the final score
 
@@ -90,12 +89,12 @@ Testability. Can an engineer reading this know how to verify success? This dimen
 
 ```
 readiness = round(
- 0.25 × feature_clarity
- + 0.20 × decision_resolution
- + 0.15 × code_grounding
- + 0.10 × reference_grounding
- + 0.10 × (100 - assumption_load) ← inverted
- + 0.20 × validation_readiness
+  0.25 × feature_clarity
+  + 0.20 × decision_resolution
+  + 0.15 × code_grounding
+  + 0.10 × reference_grounding
+  + 0.10 × (100 - assumption_load)    ← inverted
+  + 0.20 × validation_readiness
 )
 
 debt = 100 - readiness
@@ -105,14 +104,13 @@ debt = 100 - readiness
 
 ```
 readiness = round(
- 0.30 × feature_clarity
- + 0.30 × decision_resolution
- + 0.25 × repo_grounding
- + 0.15 × assumption_safety
+  0.30 × feature_clarity
+  + 0.30 × decision_resolution
+  + 0.25 × repo_grounding
+  + 0.15 × assumption_safety
 )
 ```
 
-The server populates BOTH sets of typed columns + the canonical `breakdown` JSON on every v2 write, so analytics queries against the legacy columns still work.
 
 State tier lookup:
 

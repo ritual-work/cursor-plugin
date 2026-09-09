@@ -76,27 +76,27 @@ For each file in `sources[]`, render a compact timeline:
 
 ```
 src/oscar/apps/checkout/views.py
- · — Decision: gateway-form branching (RB-6)
- from "Guest checkout → registration attribution"
- an earlier change · status when shipped: approved
- · — Deferral: rate-limit per-tenant [major]
- from "Multi-tenant rate limiting"
- Open · 14 days old · "out of scope for v1; revisit when traffic >100req/s/tenant"
- · — Decision: session-cookie checkout state
- from "Anonymous checkout v1"
- an earlier change · status when shipped: approved
+  · — Decision: gateway-form branching (RB-6)
+    from "Guest checkout → registration attribution"
+    an earlier change · status when shipped: approved
+  · — Deferral: rate-limit per-tenant [major]
+    from "Multi-tenant rate limiting"
+    Open · 14 days old · "out of scope for v1; revisit when traffic >100req/s/tenant"
+  · — Decision: session-cookie checkout state
+    from "Anonymous checkout v1"
+    an earlier change · status when shipped: approved
 
- Touched by 1 open deferral · 2 logged decisions
+  Touched by 1 open deferral · 2 logged decisions
 
 src/oscar/apps/order/models.py
- · — Decision: snapshot vs FK on order.user
- from "Guest checkout → registration attribution"
- an earlier change · status when shipped: approved
+  · — Decision: snapshot vs FK on order.user
+    from "Guest checkout → registration attribution"
+    an earlier change · status when shipped: approved
 
- Touched by 0 open deferrals · 1 logged decision
+  Touched by 0 open deferrals · 1 logged decision
 
 src/oscar/apps/order/utils.py
- · (no lineage logged — this file hasn't been touched by a Ritual exploration yet)
+  · (no lineage logged — this file hasn't been touched by a Ritual exploration yet)
 ```
 
 Rules for the output:
