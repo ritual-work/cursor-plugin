@@ -36,20 +36,20 @@ Default user-visible messages should be:
 The two failure modes below are the most common leaks. They are forbidden, not discouraged.
 
 1. **Don't editorialize — just ask.** When you ask the user to choose, render the question + the options. Do NOT justify *why* you're asking or how costly getting it wrong is — that's your reasoning, not the user's decision input.
- - ❌ `"New social commerce experience" maps to several distinct features — picking the wrong one wastes significant scope.`
- - ❌ `Because this spans three cross-functional tracks, attribution rules have real product decisions baked in.`
- - ✅ `What would you like to explore?` (then the options + a recommended one)
+   - ❌ `"New social commerce experience" maps to several distinct features — picking the wrong one wastes significant scope.`
+   - ❌ `Because this spans three cross-functional tracks, attribution rules have real product decisions baked in.`
+   - ✅ `What would you like to explore?` (then the options + a recommended one)
 
 2. **Silent checks stay silent — never name a tool or narrate plumbing.** Connection/freshness pings, config reads, workspace lookups, and code recon are invisible. Do NOT print "let me ping Ritual", "checking the workspace config", or any `*` tool name.
- - ❌ `Now I'll start the build flow. Let me check the workspace config and ping Ritual simultaneously.`
- - ❌ `Pinging Ritual to verify the connection…`
- - ✅ (nothing — run the check silently; the next user-visible line is the actual gate or status)
+   - ❌ `Now I'll start the build flow. Let me check the workspace config and ping Ritual simultaneously.`
+   - ❌ `Pinging Ritual to verify the connection…`
+   - ✅ (nothing — run the check silently; the next user-visible line is the actual gate or status)
 
 3. **Don't narrate your process or restate your own instructions.** Loading a spec, fetching a preview, "before presenting", "must print it verbatim", and naming an internal **Step N** are all scratchpad — do them silently and just present the result. The user never sees the machinery between "I have the data" and "here it is."
- - ❌ `6 recommendations ready. Let me load Step 9's exact rendering spec before presenting.`
- - ❌ `Now I'll fetch the server-rendered preview — must print it verbatim.`
- - ❌ `Let me check what the skill says here, then render it.`
- - ✅ (just present it — the recommendations / the picker / the rail, with no preamble about how you produced it)
+   - ❌ `6 recommendations ready. Let me load Step 9's exact rendering spec before presenting.`
+   - ❌ `Now I'll fetch the server-rendered preview — must print it verbatim.`
+   - ❌ `Let me check what the skill says here, then render it.`
+   - ✅ (just present it — the recommendations / the picker / the rail, with no preamble about how you produced it)
 
 Rule of thumb: if a line describes what *you* are doing internally (a tool call, loading a spec, a check, why a question matters, what you're about to render), cut it. The user wants the work and the decision, not your scratchpad. Internal **Step N** labels and artifact names ("rendering spec", "server-rendered preview", "the contract") never appear in user-facing copy.
 
@@ -213,12 +213,12 @@ Canonical destinations (use these; don't improvise):
 
 **Canonical stage table (single source of truth):**
 
-| Stage | Active during… |
+| Stage              | Active during…                                                                 |
 |--------------------|--------------------------------------------------------------------------------|
-| `Scope` | Opens at the Step 0.7 Scope-entry gate — server-side classification of the user's raw ask (`prepare_build`, which also auto-resolves the workspace + creates the draft; a correction re-calls `classify_work_item`) + the user's confirmation of what they're building. Then problem frame + sub-problem generation/selection, until scope is locked; the silent grounding recon runs at the lock→create boundary |
-| `Discovery` | Exploration creation, discovery questions, answers, question picking, answer review |
-| `Recommendations` | Recommendation generation + review |
-| `{Deliverable}` | **Named for the build's deliverable** — the `deliverableTemplate` returned at the Scope-entry gate (e.g. `Launch Brief`, `PRD`, `Service Build Brief`; `Build brief` for the generic `build-feature`). Covers requirements + deliverable generation/review. |
+| `Scope`            | Opens at the Step 0.7 Scope-entry gate — server-side classification of the user's raw ask (`prepare_build`, which also auto-resolves the workspace + creates the draft; a correction re-calls `classify_work_item`) + the user's confirmation of what they're building. Then problem frame + sub-problem generation/selection, until scope is locked; the silent grounding recon runs at the lock→create boundary |
+| `Discovery`        | Exploration creation, discovery questions, answers, question picking, answer review |
+| `Recommendations`  | Recommendation generation + review                                              |
+| `{Deliverable}`    | **Named for the build's deliverable** — the `deliverableTemplate` returned at the Scope-entry gate (e.g. `Launch Brief`, `PRD`, `Service Build Brief`; `Build brief` for the generic `build-feature`). Covers requirements + deliverable generation/review. |
 | `Implementation` | **Development-function builds ONLY.** Coding, branch/PR work, `sync_implementation`. Non-development builds (e.g. `create-launch-brief`) OMIT this stage — their rail has FOUR stages and ends at the deliverable. |
 
 The FIRST rail stage is `Scope` — it opens at the Step 0.7 Scope-entry gate (classification + confirmation of what the user is building) and stays active through the problem frame; on resume paths the gate is skipped and the rail opens with `Scope` already `✓`. **There is no separate `Job` or `Context` stage** — the entry classification, workspace pick, resume/start check, and template resolution all happen as the front of (or silent plumbing inside) Scope, never as their own visible rail stage. The grounding **code recon** runs silently AFTER the frame locks (build-flow § Step 5.7) and is not surfaced by default; only narrate repo inspection if the user explicitly asks. Naming hazard: `/ritual recon` was retired as a command surface, so don't reuse `Recon`/`Context` at the rail level.
@@ -271,12 +271,12 @@ Intermediate stages (scope/discovery/recommendations) advance the markers identi
 **Compact chip spec — mobile chat / narrow chat:**
 
 ```text
-development build (N/5): non-development build (N/4):
-compactChip("scope") => Ritual build · 1/5 Scope | 1/4 Scope
-compactChip("discovery") => Ritual build · 2/5 Discovery | 2/4 Discovery
+development build (N/5):         non-development build (N/4):
+compactChip("scope")          => Ritual build · 1/5 Scope      | 1/4 Scope
+compactChip("discovery")      => Ritual build · 2/5 Discovery  | 2/4 Discovery
 compactChip("recommendations")=> Ritual build · 3/5 Recommendations | 3/4 Recommendations
-compactChip("deliverable") => Ritual build · 4/5 {Deliverable} | 4/4 {Deliverable}
-compactChip("implementation") => Ritual build · 5/5 Implementation (dev only)
+compactChip("deliverable")    => Ritual build · 4/5 {Deliverable}   | 4/4 {Deliverable}
+compactChip("implementation") => Ritual build · 5/5 Implementation   (dev only)
 ```
 
 Optional second line at phase transitions, resumes, and decision gates:
@@ -323,25 +323,25 @@ The pulse rule and visual specs live in the [§ /ritual-context-pulse](#ritual-c
 
 **Placement — always at the BOTTOM of the message, never the first line.** The pulse score line sits **immediately above the action/CTA line** (with the one-sentence lift bridge), so the message leads with the step's actual content and ends with the progress signal + the next move. Never open a message with the pulse.
 
- ```text
- {…the step's content…}
+  ```text
+  {…the step's content…}
 
- Pulse: Reasoning Readiness 58% · Context Debt 42% ↓3% (locking scope cut it 3%)
- Reply proceed (run discovery → recommendations) · expert · pause
- ```
+  Pulse: Reasoning Readiness 58% · Context Debt 42% ↓3% (locking scope cut it 3%)
+  Reply  proceed (run discovery → recommendations)  ·  expert  ·  pause
+  ```
 
- - **Score line** (top of the message). Full capitalized labels — `Reasoning Readiness` and `Context Debt`, NOT lowercase. The progress delta attaches to **Context Debt as a directional drop** — `Context Debt 42% ↓3%` — so the movement reads unambiguously as debt going DOWN. (A bare `· +3%` sitting next to the debt figure reads like debt went UP by 3, the opposite of progress — that's the confusion this avoids.) The delta is **MANDATORY** on every pulse after the first (the first pulse has no prior → just the baseline + reason). Use `↓N%` when debt drops (the normal, good case), `↑N%` on a regression (rare; render full then), and `±0%` when a step didn't move the score. Never drop it — it's the visible-progress signal. (Readiness climbing and debt dropping are the same move — `Reasoning Readiness + Context Debt = 100%` — so the debt-drop arrow IS the readiness-gain signal, just framed the way users read it.) **The trailing parenthetical is a plain CAUSAL gloss — it attributes the drop to the step the user just took, in everyday words: `(locking scope cut it 3%)`, `(answering discovery dropped it 16%)`, `(grounding in your code cut it 9%)`. Not a bare state label like `(scope locked)` — the user should read what they DID and how much debt it removed. Keep the branded `Context Debt` term; the gloss makes the number mean something.** (The first pulse has no prior, so its parenthetical names the open gap instead — e.g. `(repo boundary unresolved)`.)
- - **Lift bridge** (ONE sentence, immediately ABOVE the action/CTA line — NOT under the score). This is the load-bearing piece: it turns the score into a reason to proceed. Three requirements:
- 1. **Plain language for the gap — NEVER the internal dimension name.** The lowest dimension from `score_context_pulse`'s breakdown picks the message, but the user sees what it MEANS, not the label:
- | lowest dimension (internal) | what the user reads (plain) |
- |---|---|
- | `decisionResolution` | the design decisions aren't settled yet |
- | `repoGrounding` | the plan isn't grounded in your code yet |
- | `assumptionSafety` | some assumptions are still unverified |
- | `featureClarity` | what exactly to build is still fuzzy |
- 2. **Name the NEXT STEP as the resolver, explicitly.** The bridge must make clear that the action the user is about to take is what closes the gap — `that's exactly what the next step, discovery, resolves` / `code recon next grounds it` / `the build brief locks those down`. The bridge and the forward-CTA below it name the SAME move — one story.
- 3. **Terse + declarative** — no `now let me help you improve this` assistant/affect register.
- On the LAST scoreable step (Step 10, implementation-ready), there's no further lift — the bridge becomes the readiness statement: `The brief is your build path — implement when ready.`
+  - **Score line** (top of the message). Full capitalized labels — `Reasoning Readiness` and `Context Debt`, NOT lowercase. The progress delta attaches to **Context Debt as a directional drop** — `Context Debt 42% ↓3%` — so the movement reads unambiguously as debt going DOWN. (A bare `· +3%` sitting next to the debt figure reads like debt went UP by 3, the opposite of progress — that's the confusion this avoids.) The delta is **MANDATORY** on every pulse after the first (the first pulse has no prior → just the baseline + reason). Use `↓N%` when debt drops (the normal, good case), `↑N%` on a regression (rare; render full then), and `±0%` when a step didn't move the score. Never drop it — it's the visible-progress signal. (Readiness climbing and debt dropping are the same move — `Reasoning Readiness + Context Debt = 100%` — so the debt-drop arrow IS the readiness-gain signal, just framed the way users read it.) **The trailing parenthetical is a plain CAUSAL gloss — it attributes the drop to the step the user just took, in everyday words: `(locking scope cut it 3%)`, `(answering discovery dropped it 16%)`, `(grounding in your code cut it 9%)`. Not a bare state label like `(scope locked)` — the user should read what they DID and how much debt it removed. Keep the branded `Context Debt` term; the gloss makes the number mean something.** (The first pulse has no prior, so its parenthetical names the open gap instead — e.g. `(repo boundary unresolved)`.)
+  - **Lift bridge** (ONE sentence, immediately ABOVE the action/CTA line — NOT under the score). This is the load-bearing piece: it turns the score into a reason to proceed. Three requirements:
+    1. **Plain language for the gap — NEVER the internal dimension name.** The lowest dimension from `score_context_pulse`'s breakdown picks the message, but the user sees what it MEANS, not the label:
+       | lowest dimension (internal) | what the user reads (plain) |
+       |---|---|
+       | `decisionResolution` | the design decisions aren't settled yet |
+       | `repoGrounding` | the plan isn't grounded in your code yet |
+       | `assumptionSafety` | some assumptions are still unverified |
+       | `featureClarity` | what exactly to build is still fuzzy |
+    2. **Name the NEXT STEP as the resolver, explicitly.** The bridge must make clear that the action the user is about to take is what closes the gap — `that's exactly what the next step, discovery, resolves` / `code recon next grounds it` / `the build brief locks those down`. The bridge and the forward-CTA below it name the SAME move — one story.
+    3. **Terse + declarative** — no `now let me help you improve this` assistant/affect register.
+    On the LAST scoreable step (Step 10, implementation-ready), there's no further lift — the bridge becomes the readiness statement: `The brief is your build path — implement when ready.`
 
 - **Inline pulses are ALWAYS the one-line compact form — never the bar breakdown (load-bearing).** No exception for a tier crossing, a ≥15% jump, or a regression: inside `/ritual-build` and `/ritual-resume` the pulse is ONE score line + ONE lift-bridge sentence. The dimension bars (`Feature clarity ▓▓▓░░ 35%`, …), the `Reasoning readiness: A% → B%` two-line header, and the `Context surface:` tier line belong ONLY to an explicit `/ritual-context-pulse` invocation, where the breakdown IS the deliverable. Rendering them inline buries the step's actual decision under a wall of numbers the user didn't ask for — the gate's content is the point; the pulse is a footnote to it.
 - A **regression** stays compact too: keep the `↑M%` direction marker and let the lift bridge carry the explanation in words (e.g. *"the dip is the unreviewed set — reviewing them is what settles it"*). One sentence, not a scorecard.
@@ -432,14 +432,14 @@ Render each candidate as:
 ```text
 1. {Title}
 
- {Short explanation wrapped across lines.}
+   {Short explanation wrapped across lines.}
 ```
 
 Only the title line gets the number. Use blank lines between candidates.
 
 ### Problem frame
 
-When showing a generated problem statement, never show the old versioned scope heading and do not use `ship it` as the default CTA. For engineering / agentic coding, avoid default `How might we…` phrasing unless the user asks for it. Use:
+When showing a generated problem statement, use the heading and CTA below. For engineering / agentic coding, avoid default `How might we…` phrasing unless the user asks for it. Use:
 
 ```text
 Problem frame
@@ -452,7 +452,7 @@ Optimize for:
 
 References:
 - {RB/decision/exploration label} — {one-line meaning}
- Source: {exploration title or id}{ optional URL if available}
+  Source: {exploration title or id}{ optional URL if available}
 
 Reply `use` to use this frame and review discovery questions.
 Or reply with edits, e.g. `tighten`, `broaden`, `focus on outbox`, `drop dashboard`, or `pause`.

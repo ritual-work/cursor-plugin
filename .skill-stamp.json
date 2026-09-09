@@ -1,7 +1,7 @@
 {
-  "stamp": "2b4ab1a47f65",
+  "stamp": "790e5228889b",
   "channel": "cursor-plugin",
   "via": "apps/mcp/scripts/build-agent-skills.mjs cursor adapter",
-  "upstreamBranch": "dev",
-  "upstreamSha": "9b31c719dff45a9b606261f06cf8744e15598947"
+  "upstreamBranch": "codex/skill-audit-cleanup",
+  "upstreamSha": "b910510162e4c4d8c1ee702d9f4c06bbb3a573c4"
 }

@@ -22,11 +22,11 @@ Same content, two surfaces. Pick whichever fits the user's flow.
 The subcommand can be invoked three ways:
 
 1. **`/ritual-status`** (no arg) — auto-resolve the current run from workspace context:
- - If `.ritual/config.json` is bound (the repository is already bound to a workspace), load `workspaceId` from there.
- - Call `list_explorations(workspace_id)`, sort by `updatedAt` desc.
- - For each of the top 5 most-recently-updated, call `list_agentic_runs(exploration_id, status='RUNNING', limit=1)` until one returns a run.
- - If none has a RUNNING run, fall back to the most-recently-updated exploration with step != `COMPLETED`.
- - If no workspace is bound to the project, ask the user for an exploration ID or use the connected MCP to select their workspace.
+   - If `.ritual/config.json` is bound (the repository is already bound to a workspace), load `workspaceId` from there.
+   - Call `list_explorations(workspace_id)`, sort by `updatedAt` desc.
+   - For each of the top 5 most-recently-updated, call `list_agentic_runs(exploration_id, status='RUNNING', limit=1)` until one returns a run.
+   - If none has a RUNNING run, fall back to the most-recently-updated exploration with step != `COMPLETED`.
+   - If no workspace is bound to the project, ask the user for an exploration ID or use the connected MCP to select their workspace.
 
 2. **`/ritual-status <exploration-id>`** — skip auto-resolve, fetch that exploration directly.
 
@@ -44,30 +44,30 @@ Call in parallel:
 Mirror the terminal CLI exactly. Run line first, exploration name as a footer parenthetical:
 
 ```text
-Run ba4d2b42-… · RUNNING for 17m 41s
-Phase answering (58%)
-Questions 42 / 67 · 0 failed
-Activity last DB write 1m 12s ago
-Pace ~14s/question · ETA ~5m 50s remaining
-Next Recommendations (auto-advances when questions are done)
+Run        ba4d2b42-…  ·  RUNNING for 17m 41s
+Phase      answering  (58%)
+Questions  42 / 67  ·  0 failed
+Activity   last DB write 1m 12s ago
+Pace       ~14s/question  ·  ETA ~5m 50s remaining
+Next       Recommendations (auto-advances when questions are done)
 
 (Exploration: Join while booking — post-order account claim)
- 51f16182-… · step: DEVELOPING_ANSWERS
+  51f16182-…  ·  step: DEVELOPING_ANSWERS
 ```
 
 Rendering rules:
 
 - **Run line first.** "RUNNING for 17m 41s" is the headline.
-- **Pace + ETA** computed client-side from `(now - run.startedAt) / progress.completedQuestions × (totalQuestions - completedQuestions)`. Only show when `completedQuestions >= 3` — below that, render `Pace warming up — check back in 30s`.
+- **Pace + ETA** computed client-side from `(now - run.startedAt) / progress.completedQuestions × (totalQuestions - completedQuestions)`. Only show when `completedQuestions >= 3` — below that, render `Pace       warming up — check back in 30s`.
 - **Activity** is the freshness signal — if `last write` has been climbing past ~3 min without `completedQuestions` advancing, that's actionable info. Surface it plainly; do not invent a "stuck" diagnosis — the server monitors stalls and recovers them itself.
 - **Next line** is heuristic based on `progress.phase`:
- - `answering` → `Recommendations (auto-advances when questions are done)`
- - `submitting` → `Recommendations`
- - `recommendations` → `Build brief (after admin review)`
- - `complete` / `failed` → `—`
- - any unknown → omit the line entirely
-- **No run, but progress data exists** (run completed or never started): render `Run (no active run)` + phase + Activity. Useful when the user types `/ritual-status` after a run finished.
-- **No run, no progress**: render `Run (no run started yet)` + Step + Activity.
+  - `answering` → `Recommendations (auto-advances when questions are done)`
+  - `submitting` → `Recommendations`
+  - `recommendations` → `Build brief (after admin review)`
+  - `complete` / `failed` → `—`
+  - any unknown → omit the line entirely
+- **No run, but progress data exists** (run completed or never started): render `Run        (no active run)` + phase + Activity. Useful when the user types `/ritual-status` after a run finished.
+- **No run, no progress**: render `Run        (no run started yet)` + Step + Activity.
 
 #### Step S4 — Wrap up
 

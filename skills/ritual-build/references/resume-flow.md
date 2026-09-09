@@ -84,7 +84,7 @@ Before showing the in-flight exploration list, glance at `.ritual/pending-sync/`
 Quick scan:
 
 ```bash
-ls.ritual/pending-sync/*.json 2>/dev/null
+ls .ritual/pending-sync/*.json 2>/dev/null
 ```
 
 If the directory doesn't exist or has no `.json` files: proceed silently to R2. Most invocations land here.
@@ -95,26 +95,26 @@ If there ARE pending syncs:
 
 2. For each, do a **quick staleness probe** — same shape as `/ritual-build` Step 12.2:
 
- ```bash
- # In the payload's branch, are there commits not in payload.commits[]?
- git log {branch} --pretty=format:%H 2>/dev/null
- ```
+   ```bash
+   # In the payload's branch, are there commits not in payload.commits[]?
+   git log {branch} --pretty=format:%H 2>/dev/null
+   ```
 
 3. Surface the list before the regular exploration picker:
 
- ```text
- You have {N} pending sync{s} from past sessions:
+   ```text
+   You have {N} pending sync{s} from past sessions:
 
- 1. **{exploration name}**
- Saved {Xd} ago · {commitsCount} commit{s} · branch `{branch}`
- {stalenessBadge} ← "✓ still current" | "⚠ {M} new commits since save"
+     1. **{exploration name}**
+        Saved {Xd} ago · {commitsCount} commit{s} · branch `{branch}`
+        {stalenessBadge}   ← "✓ still current" | "⚠ {M} new commits since save"
 
- 2....
+     2. ...
 
- Resolve before resuming? (Y/n)
- ```
+   Resolve before resuming? (Y/n)
+   ```
 
- **[USER PAUSE — required, do not auto-answer]** Wait for reply.
+   **[USER PAUSE — required, do not auto-answer]** Wait for reply.
 
 4. If user says **yes**: for each pending sync (in order), apply the same flow as `/ritual-build` Step 12.2's staleness check — retry as-is / regenerate / show new commits. Once resolved, delete the corresponding `.ritual/pending-sync/<id>.json` (succeeded) or leave it for later (deferred). Then continue to R2.
 
@@ -140,34 +140,34 @@ If there are multiple plausible targets, group by state badge and show. **One pi
 > **📍 still in discovery** ({count})
 >
 > 1. **{name}** — {first 80 chars of problemStatement}
-> Last touched {N} {days/hours} ago. Next: continue sub-problem generation.
+>    Last touched {N} {days/hours} ago. Next: continue sub-problem generation.
 >
 > **💬 waiting on admin to accept recommendations** ({count})
 >
 > 2. **{name}** — {…}
-> Last touched {N} days ago. Next: admin reviews + accepts in Step 9.
+>    Last touched {N} days ago. Next: admin reviews + accepts in Step 9.
 > 3. **{name}** — {…}
-> Last touched {N} days ago. Next: …
+>    Last touched {N} days ago. Next: …
 >
 > **✅ ready for build brief** ({count})
 >
 > 4. **{name}** — {…}
-> Last touched {N} days ago. Next: generate the build brief.
+>    Last touched {N} days ago. Next: generate the build brief.
 >
 > **Which one do you want to resume? Reply with the number, the name, or `none` to exit.**
 
 **Rendering anti-pattern (hard rule — do not do this):**
 
 - ❌ Numbering the SAME exploration's continuation lines (summary, "Last touched", "Next") as separate numbered items:
- ```text
- 1. Social shopping — activate wishlist sharing
- 1. Activate dormant wishlist sharing primitives...
- 1. Last touched ~10 min ago. Next: generate the build brief.
- 2. Join while booking — post-order account claim
- 2. Post-checkout account creation flow...
- 2. Last touched ~2 hours ago. Next: admin reviews + accepts.
- ```
- Three `1.` lines + three `2.` lines is wrong. **Each exploration gets ONE picker number on its title line. The summary, last-touched, and next-action lines belong to that exploration as indented continuation prose — never their own numbered or bulleted entries.**
+  ```text
+  1. Social shopping — activate wishlist sharing
+  1. Activate dormant wishlist sharing primitives...
+  1. Last touched ~10 min ago. Next: generate the build brief.
+  2. Join while booking — post-order account claim
+  2. Post-checkout account creation flow...
+  2. Last touched ~2 hours ago. Next: admin reviews + accepts.
+  ```
+  Three `1.` lines + three `2.` lines is wrong. **Each exploration gets ONE picker number on its title line. The summary, last-touched, and next-action lines belong to that exploration as indented continuation prose — never their own numbered or bulleted entries.**
 
 - ❌ Using `-` bullets for explorations when the picker tells the user "reply with the number." Bullets have no numbers; the user can't say "I pick `-`."
 
@@ -196,7 +196,7 @@ Same as `/ritual-build` Step 1.5 step 5's branch-existence check. Before treatin
 
 ```bash
 git rev-parse --verify "origin/${implementationRecord.branch}" 2>/dev/null \
- || gh pr view "${implementationRecord.prNumber}" --json state 2>/dev/null
+  || gh pr view "${implementationRecord.prNumber}" --json state 2>/dev/null
 ```
 
 If neither resolves, surface as a single-action proposal:

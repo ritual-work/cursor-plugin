@@ -47,29 +47,29 @@ Got it — you want to {specific restatement of the change, in the user's own te
 Here's what I'll do: {plain-English effect on the artifact}. I'll ask Ritual to
 {refine the sub-problems / refine the problem frame / add this anti-goal} with this instruction:
 
- → "{the EXACT change_prompt / anti-goal text the agent will send the tool}"
+  → "{the EXACT change_prompt / anti-goal text the agent will send the tool}"
 
 Apply this? Reply `yes`, or tell me what to adjust.
 ```
 
 Rules for the block:
 - **Restate specifically.** "drop the observability sub-problem and add a rollout-safety one" — never
- a generic "you want to make a change." If the agent can't restate the request specifically, it
- doesn't understand it yet: ask a clarifying question instead of guessing a `change_prompt`.
+  a generic "you want to make a change." If the agent can't restate the request specifically, it
+  doesn't understand it yet: ask a clarifying question instead of guessing a `change_prompt`.
 - **Show the literal request.** The `→ "..."` line is the *exact* string going into the tool
- (`change_prompt` verbatim, or the anti-goal `text`). This is the whole point — the user is
- validating the instruction the model will actually send, not a paraphrase of it.
+  (`change_prompt` verbatim, or the anti-goal `text`). This is the whole point — the user is
+  validating the instruction the model will actually send, not a paraphrase of it.
 - **One confirm token.** `yes` applies. Treat `y`, `apply`, `go`, `do it` as aliases; do not display
- them.
+  them.
 
 ## On the user's reply
 
 - **`yes`** → make the tool call exactly as shown. Do not silently alter the `change_prompt` after
- confirmation.
+  confirmation.
 - **An adjustment** ("no, keep observability, just add rollout-safety") → fold it into the
- `change_prompt`, re-render the block **once** with the revised instruction, and wait again. This is
- a single re-confirm, **not** an open loop — after the second render, a `yes` applies and any further
- change is treated as a fresh request (new restate).
+  `change_prompt`, re-render the block **once** with the revised instruction, and wait again. This is
+  a single re-confirm, **not** an open loop — after the second render, a `yes` applies and any further
+  change is treated as a fresh request (new restate).
 - **`pause` / `stop`** → honor it; do not call the tool.
 
 ## Note — "add a question or matter that wasn't there"
