@@ -30,7 +30,9 @@ When **not** to use:
 
 1. Read `.ritual/config.json` for the pinned `explorationId` (or `workspaceId` + repo key). This is the preferred binding.
 2. If no pin: call `list_explorations` to show the compact roster, then let the user pick (same picker as Step R2 in `references/resume-flow.md`).
-3. Call `get_exploration_status` on the resolved exploration to read its LIVE state — do NOT assert status from memory or prior turns.
+3. Call `get_exploration_status` on the resolved exploration to read its LIVE state — do NOT assert status from memory or prior turns. Keep its `terminal` and `deliverable`: they decide what B2 looks for and what B4 runs.
+
+**A job that does not end in implementation** (`terminal` other than `implement`) has no Build Brief: its executable artifact is the {deliverable} itself (`EVAL-SPECIFICATION.md`, `MIGRATION-PLAN.md`, `ARCHITECTURE-DECISION-RECORD.md`, `DEBUGGING-BRIEF.md`). For those jobs read `{DELIVERABLE}.md` where B2 says `BUILD-BRIEF.md`, fetch it with `get_deliverable_document` (build-flow Step 10e) where B2 says server brief, render B3 through `render_gate` `brief_confirm` with `{ deliverable, terminal }` instead of the verbatim block below, and enter Step 11 through its dispatch table (`references/terminal-flows.md`) instead of 11.0.0.
 
 **Do not re-run planning or discovery.** This step reads what already exists. If unsure which exploration, call `list_explorations` first.
 
@@ -53,9 +55,9 @@ Only if NEITHER a local brief nor a server brief exists (the exploration is stil
 Ritual begin
 ✓ Scope · ✓ Discovery · ✓ Recommendations · Build brief · Implementation
 
-No accepted build brief found for this exploration.
+No accepted {deliverable} found for this exploration.
 
-`begin` executes an existing accepted brief. To get one:
+`begin` executes an existing accepted {deliverable}. To get one:
 
   · /ritual-build  — run the full planning cycle (new explorations)
   · /ritual-refine — ground an imported brief and sharpen recommendations
