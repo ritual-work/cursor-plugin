@@ -1,5 +1,5 @@
 <!-- GENERATED from references/build-flow.md by the Ritual monorepo internal guard — DO NOT EDIT. -->
-<!-- source-sha: 23fad3b2337591ae -->
+<!-- source-sha: 4eacec249c890957 -->
 
 # /ritual-lite — fast build (generated; do not edit)
 
@@ -112,7 +112,7 @@ hard stop at the brief. A normal (attended) `lite` run ignores this section.
 
 Walks the engineer from a free-form problem statement to vetted, accepted Ritual recommendations using the Ritual MCP tool surface.
 
-Output: a fully-closed loop — **exploration in COMPLETE state, recommendations accepted (or explicitly handed off to an admin), build brief generated, code implemented, and `sync_implementation` called to register the result in the knowledge graph**. The engineer stays in the driver's seat through concise status updates and explicit pauses only at real decision gates.
+Output: a fully-closed loop — **exploration in COMPLETE state, recommendations accepted (or explicitly handed off to an admin), the job's deliverable generated, its terminal carried out (code implemented for a build; the eval suite generated, the plan executed, the decision recorded, or the investigation run for the other development jobs), and `sync_implementation` called to register the result in the knowledge graph**. The engineer stays in the driver's seat through concise status updates and explicit pauses only at real decision gates.
 
 ### ON ENTRY — do this FIRST, then stay on the pipeline (load-bearing)
 
@@ -160,7 +160,7 @@ Before running this flow, apply `references/cli-output-contract.md` and `referen
 
 **Fenced render blocks are content to output, not code — never echo the fence (load-bearing).** User-facing gate renders throughout this flow are shown inside a ` ```text ` fence so the exact copy is unambiguous. When you render one, output the *content* of the block as plain text in your message — **never** include the ` ``` ` fence markers or the `text` language tag themselves. Wrapping a rendered gate in a code block is a render leak (it shows the user a grey code box instead of clean terminal text). This applies ONLY to ` ```text ` render blocks; ` ```bash `, ` ```json `, and ` ```markdown ` blocks are commands to run or content to WRITE to a file — handle those as written, never as a user-facing render.
 
-**Build rail is load-bearing.** Every top-level user-facing message below MUST begin with the build rail per `references/cli-output-contract.md` § Build progress anchor — SIX stages for development jobs, FIVE for non-development jobs (no `Implementation` stage), with stage 5 named for the job's deliverable (`deliverableTemplate` from the Scope-entry gate). The literal `Build brief` in this file's examples is the generic-build label; substitute the confirmed job's deliverable name. Examples in this file show the rail in context; the canonical stage table + `progressHeader(stage)` spec lives in the output contract. Do not drop the rail to save space.
+**Build rail is load-bearing.** Every top-level user-facing message below MUST begin with the build rail per `references/cli-output-contract.md` § Build progress anchor — FIVE stages for a development job whose terminal is `implement` (the last is `Implementation`), FIVE for the other development terminals (the last is named for the terminal — see `references/cli-output-contract.md` § Canonical stage table), FOUR for `deliver` jobs (no last stage); stage 4 is named for the job's deliverable (`deliverableTemplate` from the Scope-entry gate) and the last stage for its `terminal`. The literal `Build brief` in this file's examples is the generic-build label; substitute the confirmed job's deliverable name. Examples in this file show the rail in context; the canonical stage table + `progressHeader(stage)` spec lives in the output contract. Do not drop the rail to save space.
 
 **Render the FULL five-stage rail by default.** The **compact progress anchor** (`references/cli-output-contract.md` § Build progress anchor — the `Ritual build · 1/5 Scope` chip) is for a surface that is GENUINELY narrow: a phone-width chat, or a terminal you know is narrow. It is NOT a per-message judgement about how wide the panel looks — you cannot see the panel, and guessing per turn is what produced a run that alternated between the full rail and the chip from one message to the next. If you do not positively know the surface is narrow, render the full rail. Same contract either way; pick ONE for the whole run and keep it. **When the Ritual plugin is attached (see *Plugin-attached rendering* below), the rail is plugin-owned — omit it entirely; the board renders live progress.**
 
@@ -325,16 +325,17 @@ this is a code-scanning tool, which is the wrong promise entirely.
 
 | Gate | `kind` | `fields` (from) |
 |---|---|---|
-| Scope-entry (Step 0.7) | `scope_entry` | `{ variant: '2b', deliverable, showImplementation, restatement, clarifyingQuestion? }` — from `prepare_build` / `classify_request`. **2b only** — 2a and 2c render nothing, so a call for either is a caller error, not a gate. |
-| Scope (§5.1) | `scope` | `{ deliverable, showImplementation, ask, workspaceName, subProblems: [{n,title,blurb}], problemFrame }` — from `prepare_build` + `generate_considerations` + `generate_problem_statement` |
-| Discovery landing (§7.3.1) | `discovery` | `{ deliverable, showImplementation, totalQuestions, areaCount, pluginAttached }` — from `get_discovery_state` (+ the plugin-attached marker) |
-| Recommendations (Step 9.1) | `recs_review` | `{ deliverable, showImplementation, scopeLine, recCount, categories: [{name,titles}], readinessPct, debtPct, debtDeltaPct, debtDeltaNote }` — from `get_recommendations` + the pulse |
-| Build-brief confirm (Step 10d) | `brief_confirm` | (no fields) |
+| Scope-entry (Step 0.7) | `scope_entry` | `{ variant: '2b', deliverable, showImplementation, terminal, restatement, clarifyingQuestion? }` — from `prepare_build` / `classify_request`. **2b only** — 2a and 2c render nothing, so a call for either is a caller error, not a gate. |
+| Scope (§5.1) | `scope` | `{ deliverable, showImplementation, terminal, ask, workspaceName, subProblems: [{n,title,blurb}], problemFrame }` — from `prepare_build` + `generate_considerations` + `generate_problem_statement` |
+| Discovery landing (§7.3.1) | `discovery` | `{ deliverable, showImplementation, terminal, totalQuestions, areaCount, pluginAttached }` — from `get_discovery_state` (+ the plugin-attached marker) |
+| Recommendations (Step 9.1) | `recs_review` | `{ deliverable, showImplementation, terminal, scopeLine, recCount, categories: [{name,titles}], readinessPct, debtPct, debtDeltaPct, debtDeltaNote }` — from `get_recommendations` + the pulse |
+| Deliverable confirm (Step 10d) | `brief_confirm` | `{ deliverable, terminal }` — from `prepare_build`. Omit both only for a generic build (renders the classic "Build brief ready … move to coding"). |
 
-**Every field listed for a `kind` is REQUIRED** (the only optionals are `clarifyingQuestion` on `scope_entry`, and `brief_confirm` which takes none). `render_gate` HARD-FAILS on any missing field (never a partial gate) — so build the **complete** `fields` object before you call. Two values are easy to drop because they aren't in the per-gate tool's primary payload, so source them deliberately every time:
+**Every field listed for a `kind` is REQUIRED** (the only optionals are `clarifyingQuestion` on `scope_entry`, `terminal` — pass it whenever `prepare_build` returned one — and `brief_confirm`'s two fields). `render_gate` HARD-FAILS on any missing field (never a partial gate) — so build the **complete** `fields` object before you call. Two values are easy to drop because they aren't in the per-gate tool's primary payload, so source them deliberately every time:
 
 - **`ask`** (scope gate only) — the user's ask restated in ONE short clause, e.g. `saved views on the users table`. You author it from what they actually said; no tool returns it. Omit it and the gate rejects the whole frame, leaving you to compose the screen by hand — the variance `render_gate` exists to remove.
-- **`showImplementation`** — `true` only for **development-function** builds (the one whose rail carries the `Implementation` stage); `false` for product / marketing / prototyping. You already know the function from the Scope-entry classification (`prepare_build`) — thread the same boolean into *every* gate's fields, not just the first.
+- **`terminal`** — the job's ending, verbatim from `prepare_build` (`implement` | `generate-evals` | `execute-plan` | `record-decision` | `investigate` | `deliver`). It names the rail's last stage and decides what Step 11 does. Thread it into every gate's fields.
+- **`showImplementation`** — `true` when `terminal` is anything but `deliver` (the rail carries a last stage); `false` for product / marketing / prototyping jobs, whose terminal is `deliver`. You already know the function from the Scope-entry classification (`prepare_build`) — thread the same boolean into *every* gate's fields, not just the first.
 - **`workspaceName`** (scope gate only) — the resolved workspace's display name from `prepare_build` (`workspace.name`). It is **not** in `generate_considerations` / `generate_problem_statement` output, so carry it forward from the prepare_build result; don't expect the sub-problem call to supply it.
 
 If `render_gate` still returns an error (fields genuinely incomplete, or the tool is absent), that's the **expected fail-closed** — fall back to composing the gate from its template below and run the rule-#8.1 floor check. The tool returns this as a benign error result, not a crash, so a fallback is normal and costs nothing.
@@ -399,8 +400,8 @@ When this gate runs:
    all of these for a hosted / browser-only agent or an unbound repo). Do NOT classify yourself, do NOT
    pre-filter to development jobs, do NOT pick a workspace. One call classifies the job, AUTO-RESOLVES
    the workspace, and creates the DRAFT. It returns
-   `{ resumed, jtbd, requestLabel, deliverableTemplate, why, confidence, isGenericFallback, clarifyingQuestion?, personaCoverage, workspace, binding, explorationId }`.
-   Hold `explorationId` for Scope. `isGenericFallback` (and `confidence`) are the typed-uncertainty
+   `{ resumed, jtbd, requestLabel, deliverableTemplate, terminal, why, confidence, isGenericFallback, clarifyingQuestion?, personaCoverage, workspace, binding, explorationId }`.
+   Hold `explorationId` for Scope and `terminal` for the rail and Step 11 (`implement` for a classic build; `generate-evals`, `execute-plan`, `record-decision`, `investigate` for the jobs whose deliverable is acted on rather than implemented; `deliver` for a document-only job). `isGenericFallback` (and `confidence`) are the typed-uncertainty
    signal: when it's `true`, the result is the catch-all (`build-feature` / `produce-deliverable`) or
    the classifier wasn't sure — it is NOT a confident match, and which render variant you use in step 2
    depends on it. On that generic path the response also carries `clarifyingQuestion` — a plain-language
@@ -474,9 +475,9 @@ When this gate runs:
 
    Rail naming (deliverable-named rail): render `{Deliverable}` as the PROPOSED job's
    `deliverableTemplate` from the classify result (e.g. `Launch Brief`, `PRD`, `Service Build Brief`;
-   `Feature Brief` for the generic `build-feature`), and OMIT the `Implementation` stage
-   entirely when the proposed job is not a development job — non-dev rails have FOUR stages ending at
-   the deliverable. A correction that changes the job updates the rail on the next render. Spec:
+   `Feature Brief` for the generic `build-feature`), and name the LAST stage for the proposed job's
+   `terminal` (`Implementation` for `implement`; `Eval run` / `Execution` / `Record` / `Investigation`;
+   none for `deliver`, whose rail has FOUR stages ending at the deliverable). A correction that changes the job updates the rail on the next render. Spec:
    `references/cli-output-contract.md` § Canonical stage table.
 
 3. **[USER PAUSE] — 2b ONLY.** There is no confirmation pause on 2a or 2c; those flow straight to
@@ -2244,6 +2245,8 @@ The repair loop didn't converge. Options:
 
 #### Step 10 — Generate the build brief
 
+**Branch on the job's `terminal` first.** `implement` (every classic build): run 10a–10d below. Any other terminal (`generate-evals`, `execute-plan`, `record-decision`, `investigate`, `deliver`): there is NO Build Brief for this job — skip 10a–10c and run **10e** (fetch the deliverable), then 10d.
+
 The Build Brief is the markdown document the engineer reads RIGHT BEFORE writing code. It bridges accepted recommendations + synthesized requirements with the implementation. Sections:
 
 - **READ THIS FIRST — These Will Block Review If Missing** (RB-numbered table of must-haves)
@@ -2434,11 +2437,15 @@ When the brief content is in hand (from generate OR polling), **don't dump 300 l
 
    If any of these are detectable, offer: *"Open `BUILD-BRIEF.md` in your editor? (y/N)"* — single yes/no, never a 4-way picker. If none are detectable, omit the offer entirely; the path is still clickable in most terminals.
 
+##### 10e — Fetch the deliverable (every terminal but `implement`)
+
+The job's deliverable — the Eval Specification, Migration Plan, Architecture Decision Record, Debugging Brief, or the document a `deliver` job produces — is generated server-side when the recommendations were accepted (Step 9.5). Read it with `get_deliverable_document` (`exploration_id`): it returns `{ exists, status, name, markdown }`. Poll every ~5s while `status` is `PENDING` or `GENERATING` (up to ~2 minutes; it usually lands in 30–60s); `FAILED` → say so and offer one retry via `accept_recommendations` with `force: true`. When `status` is `COMPLETED`, write `markdown` to `.ritual/local/build-briefs/{exploration_id}/{DELIVERABLE}.md`, where `{DELIVERABLE}` is the deliverable name upper-cased with hyphens (`EVAL-SPECIFICATION.md`, `MIGRATION-PLAN.md`, `ARCHITECTURE-DECISION-RECORD.md`, `DEBUGGING-BRIEF.md`). That file is what the terminal flow acts on; the render is the same rail + a one-line summary of its sections, then 10d. The directory is the staging copy (gitignored, per-user); whether the document also lands in the repo is the terminal's default, named on the 10d confirm line and flipped by one word (`references/terminal-flows.md` § Where each deliverable lives).
+
 ##### 10d — Confirm and proceed
 
 End Step 10 with a single recommended action plus a cheap escape hatch — never a 3-way option bloom.
 
-**Rendering contract (load-bearing — see SKILL.md § Contract strength):** the user-facing block below is **verbatim**. Render the text inside the fenced block exactly as written — same option name (`proceed`), same one-line description, same order.
+**Rendering contract (load-bearing — see SKILL.md § Contract strength):** for an `implement` job the user-facing block below is **verbatim**. For any other terminal, call `render_gate` with `kind: 'brief_confirm'` and `{ deliverable, terminal }` and emit the result verbatim (its heading is `{Deliverable} ready` and its `proceed` line names that terminal's next move); without `render_gate`, compose the same shape from `references/terminal-flows.md` § Confirm lines. Render the text inside the fenced block exactly as written — same option name (`proceed`), same one-line description, same order.
 
 ```text
 Ritual build
@@ -2453,8 +2460,10 @@ Build brief ready
 
 Branch by user response. The CTA on screen is `proceed`, but accept these as synonyms so a user typing the obvious intent doesn't get penalized for word choice:
 
-- **`proceed` / `go` / `y` / `yes` / `continue` / `next` / `implement` / `ship`**: continue to Step 11. Plan mode reads the current `BUILD-BRIEF.md`, including any reconciled findings, plus synced verification and UX reviews via `priorContext`.
+- **`proceed` / `go` / `y` / `yes` / `continue` / `next` / `implement` / `ship`**: continue to Step 11 — which dispatches on the terminal (an `implement` job enters 11.0.0; every other terminal enters its flow in `references/terminal-flows.md`; `deliver` goes straight to Step 13). For `implement`, plan mode reads the current `BUILD-BRIEF.md`, including any reconciled findings, plus synced verification and UX reviews via `priorContext`.
 - **`ux-review` / `review` / `ux`**: continue to Step 10.5 (writes `UX-REVIEW.md`, syncs it to knowledge graph via `sync_brief_review`, then continues to Step 11 with the tailored plan-mode prompt). Opt-in; absence is the existing path.
+- **`local`** (shown only for `generate-evals` / `execute-plan` jobs): continue to Step 11 exactly as `proceed`, with the deliverable kept out of git (`references/terminal-flows.md` § Where each deliverable lives).
+- **`keep`** (shown only for `deliver` jobs): commit the document to the repo's docs first (`references/terminal-flows.md` § Deliver), then Step 13.
 - **`pause`** / `hold` / `stop`: stop here. The brief is on disk; the user can resume with `/ritual-resume`.
 
 **No `refine` action at Step 10d.** Verification reconciliation is completed in Step 10b.5. If the user changes the underlying recommendations or requirements, regenerate with `generate_build_brief` and `force: true`; this is distinct from saving verification findings.
@@ -2462,6 +2471,19 @@ Branch by user response. The CTA on screen is `proceed`, but accept these as syn
 **Pulse (Step 10 done):** Emit a pulse — this often crosses into **Implementation-ready** (90%+). Render full when that crossing happens. Use the build-brief celebration line: `✓ Build brief ready — discovery has become an implementation path.` If still below 90% (e.g. brief flagged residual debt), surface that in the pulse line itself and propose addressing it before coding.
 
 #### Step 11 — Implement
+
+**Dispatch on the job's `terminal` (from `prepare_build`) before anything below:**
+
+| `terminal` | What Step 11 is | Where |
+|---|---|---|
+| `implement` | slice the Build Brief and code it | 11.0.0 onward, this file |
+| `generate-evals` | generate the eval suite the Eval Specification describes, run it once | `references/terminal-flows.md` § Generate evals |
+| `execute-plan` | execute the Migration Plan step by step, verifying each checkpoint | `references/terminal-flows.md` § Execute plan |
+| `record-decision` | commit the Architecture Decision Record to the repo, open the PR | `references/terminal-flows.md` § Record decision |
+| `investigate` | run the investigation the Debugging Brief lays out, confirm the root cause | `references/terminal-flows.md` § Investigate |
+| `deliver` | nothing to run — the document is the outcome; `keep` commits it to the repo's docs first | `references/terminal-flows.md` § Deliver |
+
+Every terminal flow ends the same way: Step 11.0's branch safety, commits with the `Ritual-Exploration:` trailer, Step 12's `sync_implementation`, then Step 13. The rest of this step is the `implement` path.
 
 This step happens **inside** the same `/ritual-build` chat if the agent is also the coding agent (Claude Code / Cursor / etc.), or hand-off if the user is implementing themselves.
 
@@ -3062,7 +3084,7 @@ Use the tools named in the executable steps above. `check_anti_goals` validates 
 
 ### After this subcommand
 
-When `/ritual-build` completes, the exploration is in COMPLETE state with accepted recommendations AND a build brief has been generated AND (if the agent implemented in-chat) `sync_implementation` has been called. The workflow includes implementation and synchronization.
+When `/ritual-build` completes, the exploration is in COMPLETE state with accepted recommendations AND the job's deliverable has been generated (a build brief for an `implement` job; the deliverable document otherwise) AND (if the agent carried out the terminal in-chat) `sync_implementation` has been called. The workflow includes the terminal — implementation, eval generation, plan execution, decision recording, or investigation — and synchronization.
 
 Variants:
 - One person runs the whole flow: Steps 1 → 13, no handoff. Step 9 is a uniform non-blocking review (recs are auto-accepted; `proceed` records the review and continues).

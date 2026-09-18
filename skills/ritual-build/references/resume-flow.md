@@ -32,7 +32,9 @@ If the workspace has **zero explorations**: tell the user politely and pivot.
 
 End the flow here. Don't bounce them into `/ritual-build` automatically — explicit user intent beats implicit handoff.
 
-#### Step R1.4 — Get the brief to work from (deep-link path)
+#### Step R1.4 — Get the deliverable to work from (deep-link path)
+
+**Read the job's ending first.** Call `get_exploration_status` for the id you were handed and keep `terminal` and `deliverable` from it. A job whose `terminal` is not `implement` (`generate-evals`, `execute-plan`, `record-decision`, `investigate`, `deliver`) has NO Build Brief and never will: do not call `merge_briefs` for it (it would report `preparing` forever). Read its document with `get_deliverable_document` exactly as build-flow Step 10e says, write it to `.ritual/local/build-briefs/{exploration_id}/{DELIVERABLE}.md`, render the 10d confirm (`render_gate` `brief_confirm` with `{ deliverable, terminal }`), and continue into Step 11's dispatch (`references/terminal-flows.md`). The rest of this step is the `implement` path.
 
 An exploration you were handed by id can be **mid-pipeline** — discovery and recommendations running, brief not yet synthesized. That is a stage, not a failure, and it is the common case for someone who signed up seconds ago.
 
@@ -181,8 +183,8 @@ State badge → user-facing label + suggested next step (same table as `/ritual-
 |---|---|---|---|
 | 📍 | `in_progress` | "still in discovery" | Continue discovery |
 | 💬 | `awaiting_admin` | "waiting on admin to accept recommendations" | Admin review |
-| ✅ | `ready` | "ready for build brief" | Generate the build brief |
-| 🛠 | `in_flight` | "implementation in progress" | Refresh the build brief on remaining work |
+| ✅ | `ready` | "ready for build brief" — or "ready for the {deliverable}" when the status card's `terminal` is not `implement` | Generate the build brief (10a–10d); a non-implement job reads its {deliverable} instead (10e → 10d) |
+| 🛠 | `in_flight` | "implementation in progress" — or "{terminal stage} in progress" (Eval run / Execution / Record / Investigation) | Refresh the build brief on remaining work; a non-implement job resumes its flow in `references/terminal-flows.md` |
 | ✓ | `done` | "shipped with follow-ups" if open deferrals exist; otherwise "shipped context" | Address follow-ups or use `/ritual-lineage` on touched files. Hide fully complete shipped work by default. |
 | ⚠ | `implemented_ahead` | "code shipped before admin acceptance" | Surface to user, ask admin to reconcile |
 
@@ -249,7 +251,7 @@ Cross-reference findings against the knowledge graph state:
 
 #### Step R4 — Jump to the right `/ritual-build` step
 
-Once the user picks (and the sanity check passes), invoke the `/ritual-build` flow internally with `exploration_id` set and skip ahead to the step the badge maps to. **Don't re-prompt for workspace, template, scope, considerations, or problem statement** — that work already exists on the exploration.
+Once the user picks (and the sanity check passes), invoke the `/ritual-build` flow internally with `exploration_id` set and skip ahead to the step the badge maps to. The step you land on already branches on the job's `terminal` (Step 10 → 10a–10d or 10e; Step 11 → its dispatch table), so read `terminal` and `deliverable` off `get_exploration_status` before jumping and never assume a Build Brief. **Don't re-prompt for workspace, template, scope, considerations, or problem statement** — that work already exists on the exploration.
 
 End the flow with the same "next step" prompt `/ritual-build` would have at that step. The user sees `/ritual-resume` as a thin shortcut; behind the scenes it just teleports them into `/ritual-build`'s middle.
 
@@ -260,6 +262,7 @@ Read-tier subset of `/ritual-build`'s tools:
 1. `list_workspaces` (R1, fallback only)
 2. `list_explorations` (R2 — the core read)
 3. `get_exploration` (R3, to fetch the `implementationRecord` for the branch check)
+3a. `get_exploration_status` (R1.4 / R4, for `terminal` + `deliverable`) and `get_deliverable_document` (R1.4, non-implement jobs only)
 4. Whatever `/ritual-build` would use from the jump-in step onward (R4)
 
 No new MCP tools required. `/ritual-resume` is a thin orchestration over what already exists.

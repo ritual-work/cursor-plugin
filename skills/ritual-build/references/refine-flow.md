@@ -32,6 +32,8 @@ Refine grounds a brief **you already have**, and the paragraph above says where 
 
 So before anything else:
 
+- **The job does not end in implementation?** Resolve the exploration (Step 1's binding), call `get_exploration_status`, and read `terminal`. When it is not `implement`, there is no Build Brief to ground: the job's outcome is its {deliverable} (an Eval Specification, Migration Plan, Architecture Decision Record or Debugging Brief), and `/ritual-resume` reads and acts on it. Render, rail-led, ONE message: *"This one ends in a {deliverable}, not a build brief, so there is nothing to re-ground. `/ritual-resume` picks it up where it is."* Stop.
+
 - **No local brief (nothing under `.ritual/local/build-briefs/` and no legacy `.ritual/build-brief.md`) and no bound workspace?** This is a session that was never established. Do NOT attempt to refine, and do NOT synthesize a brief to have something to grind against. Hand off to `/ritual-resume <exploration_id>` if you were given an id, or `/ritual-resume` if you were not — that flow resolves the workspace, binds the repo, and lands on the right stage, including the stage where the brief is still generating.
 - **Brief present?** Continue with Step 1 below; nothing changes.
 

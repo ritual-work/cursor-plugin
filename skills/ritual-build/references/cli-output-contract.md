@@ -204,7 +204,9 @@ Canonical destinations (use these; don't improvise):
 | Run gate (8) | `run` | source answers → generate recommendations |
 | Recommendations (9/9.1) | `proceed` | generate the {Deliverable} (the job's deliverable name from the rail) |
 | Audit gate (9.6.1) | `proceed` | skip the audit and generate the {Deliverable} |
-| Brief gate (10d) | `go` | implement in your agent |
+| Deliverable gate (10d) | `proceed` | carry out the job's terminal: implement in your agent / generate the evals / execute the plan / record the decision / run the investigation |
+| Deliverable gate (10d), eval-spec and migration-plan jobs | `local` | the same, with the spec / plan kept out of git |
+| Deliverable gate (10d), deliver jobs | `keep` | commit the document to the repo's docs, then close |
 | Plan handoff (11.0.5) | `ready` | generate the implementation plan |
 
 `{Deliverable}` = the rail's stage-5 name (deliverable-named rail). The destination phrase, the rail's next stage, and what actually happens next must tell ONE story.
@@ -219,17 +221,17 @@ Canonical destinations (use these; don't improvise):
 | `Discovery`        | Exploration creation, discovery questions, answers, question picking, answer review |
 | `Recommendations`  | Recommendation generation + review                                              |
 | `{Deliverable}`    | **Named for the build's deliverable** — the `deliverableTemplate` returned at the Scope-entry gate (e.g. `Launch Brief`, `PRD`, `Service Build Brief`; `Build brief` for the generic `build-feature`). Covers requirements + deliverable generation/review. |
-| `Implementation` | **Development-function builds ONLY.** Coding, branch/PR work, `sync_implementation`. Non-development builds (e.g. `create-launch-brief`) OMIT this stage — their rail has FOUR stages and ends at the deliverable. |
+| `{Terminal}` | **Named for the job's `terminal`** (from `prepare_build`): `Implementation` for `implement` (coding, branch/PR work, `sync_implementation`); `Eval run` for `generate-evals`; `Execution` for `execute-plan`; `Record` for `record-decision`; `Investigation` for `investigate`. A `deliver` job (product, marketing, prototyping, e.g. `create-launch-brief`) has NO last stage — its rail has FOUR stages and ends at the deliverable. |
 
 The FIRST rail stage is `Scope` — it opens at the Step 0.7 Scope-entry gate (classification + confirmation of what the user is building) and stays active through the problem frame; on resume paths the gate is skipped and the rail opens with `Scope` already `✓`. **There is no separate `Job` or `Context` stage** — the entry classification, workspace pick, resume/start check, and template resolution all happen as the front of (or silent plumbing inside) Scope, never as their own visible rail stage. The grounding **code recon** runs silently AFTER the frame locks (build-flow § Step 5.7) and is not surfaced by default; only narrate repo inspection if the user explicitly asks. Naming hazard: `/ritual recon` was retired as a command surface, so don't reuse `Recon`/`Context` at the rail level.
 
 **Canonical ordering (only the active marker moves):**
 
 ```
-Scope → Discovery → Recommendations → {Deliverable} → Implementation (development builds only)
+Scope → Discovery → Recommendations → {Deliverable} → {Terminal} (every terminal but `deliver`)
 ```
 
-The rail is **deliverable-named and function-shaped**: stage 4 carries the build's own deliverable name, and stage 5 exists only for development-function builds. The timeline is the promise — a Launch Brief build promises a Launch Brief, not a code handoff. Before the build is confirmed (the Scope-entry gate itself), render the PROPOSED classification's deliverable; a correction updates the rail on the next render.
+The rail is **deliverable-named and terminal-shaped**: stage 4 carries the build's own deliverable name, and stage 5 is named for what happens to it — `Implementation` for a classic build, `Eval run` / `Execution` / `Record` / `Investigation` for the jobs whose deliverable is acted on, and absent for a document-only job. The timeline is the promise — a Launch Brief build promises a Launch Brief, not a code handoff. Before the build is confirmed (the Scope-entry gate itself), render the PROPOSED classification's deliverable; a correction updates the rail on the next render.
 
 - Completed stages: `✓`
 - Current stage: `▶`
@@ -240,7 +242,7 @@ Future stages carry no marker on purpose. A row of identical `○` reads as five
 equal things and the eye has to hunt for the one that differs; with only `✓` and
 `▶` marked, where-you-are is the first thing seen.
 
-**Build rail spec (`progressHeader(stage, jtbd)`) — CLI / terminal rendering.** `{Deliverable}` below = the job's `deliverableTemplate`; the `Implementation` stage renders only for development-function jobs.
+**Build rail spec (`progressHeader(stage, terminal)`) — CLI / terminal rendering.** `{Deliverable}` below = the job's `deliverableTemplate`; `Implementation` below stands for the `{Terminal}` label, which renders for every terminal but `deliver` (e.g. `specify-evals` → `Eval Specification · Eval run`); the `Implementation` stage renders only for development-function jobs.
 
 Development job (e.g. `build-backend-service` → `Service Build Brief`; generic `build-feature` → `Build brief`):
 
